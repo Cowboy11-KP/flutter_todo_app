@@ -1,0 +1,27 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.buildlog/
+.flutter-plugins
+.flutter-plugins-dependencies
+pubspec.lock
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Build
+build/
+ios/Flutter/App.framework
+ios/Flutter/Flutter.framework
+android/.gradle/
+android/app/debug
+android/app/release
+
+# Others
+*.log
+*.tmp
+.env
+google-services.json
+firebase_options.dart
