@@ -8,6 +8,7 @@ import 'package:frontend/service/firebase_options.dart';
 import 'package:frontend/viewmodels/auth_cubit.dart';
 import 'package:frontend/viewmodels/auth_service.dart';
 import 'package:frontend/viewmodels/todo_cubit.dart';
+import 'package:frontend/views/home/home_screen.dart';
 import 'package:frontend/views/onboarding/onboarding_screen.dart';
 import 'package:frontend/theme/app_theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
       title: 'UpTodo App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: OnboardingScreen()
+      home: HomeScreen()
     );
   }
 }

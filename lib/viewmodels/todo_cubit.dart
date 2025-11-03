@@ -22,11 +22,21 @@ class TodoCubit extends Cubit<List<TodoModel>> {
   }
 
   /// 🔹 Thêm Todo mới
-  Future<void> addTodo(String title) async {
+  Future<void> addTodo({
+    required String title,
+    String description = '',
+    DateTime? date,
+    String category = 'General',
+    int priority = 1,
+  }) async {
     final todo = TodoModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
-      createdAt: DateTime.now(),
+      description: description,
+      date: date ?? DateTime.now(),
+      category: category,
+      priority: priority,
+      isDone: false,
     );
     await repository.addTodo(todo);
     emit(repository.getLocalTodos());
@@ -37,8 +47,11 @@ class TodoCubit extends Cubit<List<TodoModel>> {
     final updated = TodoModel(
       id: todo.id,
       title: todo.title,
+      description: todo.description,
+      date: todo.date,
+      category: todo.category,
+      priority: todo.priority,
       isDone: !todo.isDone,
-      createdAt: todo.createdAt,
     );
 
     await repository.updateTodo(updated);

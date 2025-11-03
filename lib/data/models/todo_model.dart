@@ -3,6 +3,7 @@ import 'package:hive/hive.dart';
 part 'todo_model.g.dart';
 
 @HiveType(typeId: 2) // chọn typeId khác với UserModel
+@HiveType(typeId: 2)
 class TodoModel extends HiveObject {
   @HiveField(0)
   final String id;
@@ -11,33 +12,48 @@ class TodoModel extends HiveObject {
   final String title;
 
   @HiveField(2)
-  final bool isDone;
+  final String description;
 
   @HiveField(3)
-  final DateTime createdAt;
+  final DateTime date; // ngày (ngày, giờ)
+
+  @HiveField(4)
+  final String category; // ví dụ: "University", "Work", "Personal"
+
+  @HiveField(5)
+  final int priority; // 1, 2, 3,...
+
+  @HiveField(6)
+  final bool isDone;
 
   TodoModel({
     required this.id,
     required this.title,
+    this.description = '',
+    required this.date,
+    this.category = 'General',
+    this.priority = 1,
     this.isDone = false,
-    DateTime? createdAt,
-  }) : createdAt = createdAt ?? DateTime.now();
+  });
 
-  // CHUYỂN SANG MAP để lưu lên Firestore
   Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'isDone': isDone,
-        'createdAt': createdAt.toIso8601String(),
-      };
+    'id': id,
+    'title': title,
+    'description': description,
+    'date': date.toIso8601String(),
+    'category': category,
+    'priority': priority,
+    'isDone': isDone,
+  };
 
-  // TẠO từ Map đọc từ Firestore
   factory TodoModel.fromJson(Map<String, dynamic> json) => TodoModel(
-        id: json['id'] as String? ?? '',
-        title: json['title'] as String? ?? '',
-        isDone: json['isDone'] as bool? ?? false,
-        createdAt: json['createdAt'] != null
-            ? DateTime.parse(json['createdAt'] as String)
-            : DateTime.now(),
-      );
+    id: json['id'] ?? '',
+    title: json['title'] ?? '',
+    description: json['description'] ?? '',
+    date: DateTime.parse(json['date']),
+    category: json['category'] ?? 'General',
+    priority: json['priority'] ?? 1,
+    isDone: json['isDone'] ?? false,
+  );
 }
+

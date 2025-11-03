@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/views/home/calendar_screen.dart';
 import 'package:frontend/views/home/focus_screen.dart';
-import 'package:frontend/views/home/index_screen.dart';
+import 'package:frontend/views/home/index/index_screen.dart';
 import 'package:frontend/views/home/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -89,7 +88,6 @@ class _HomeScreenState extends State<HomeScreen> {
               _onItemTapped(0); // quay về Index nếu đang tab khác
             }
           },
-          backgroundColor: AppColors.primary,
           shape: const CircleBorder(),
           elevation: 6,
           child: const Icon(Icons.add, color: Colors.white, size: 32),

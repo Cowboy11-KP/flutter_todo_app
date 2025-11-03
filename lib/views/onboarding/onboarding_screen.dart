@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:frontend/views/onboarding/start_screen.dart';
-import 'package:frontend/theme/app_color.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -50,6 +49,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -60,7 +61,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 alignment: Alignment.topLeft,
                 child: TextButton(
                   onPressed: _skip,
-                  child: const Text("SKIP", style: TextStyle(color: AppColors.textSecondary)),
+                  child: Text(
+                    "SKIP",
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
                 ),
               ),
               
@@ -107,7 +113,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       width: _currentPage == index ? 20 : 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: _currentPage == index ? AppColors.primary : Colors.grey,
+                        color: _currentPage == index 
+                          ? theme.colorScheme.primary 
+                          : theme.colorScheme.onSurface.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     );
@@ -126,7 +134,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         TextButton(
                           onPressed: () => _controller.previousPage(
                               duration: const Duration(milliseconds: 300), curve: Curves.easeIn),
-                          child: const Text("BACK", style: TextStyle(color: AppColors.textSecondary)),
+                          child: Text(
+                            "BACK",
+                            style: theme.textTheme.labelMedium?.copyWith(
+                              color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
+                            ),
+                          ),
                         )
                       else
                         const SizedBox(width: 60), // giữ khoảng trống cho căn giữa

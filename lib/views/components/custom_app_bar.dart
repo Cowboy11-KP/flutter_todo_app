@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/theme/app_color.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
   final bool showBack;
   final List<Widget>? actions;
-  final Color backgroundColor;
 
   const CustomAppBar({
     super.key,
     required this.title,
     this.showBack = true,
     this.actions,
-    this.backgroundColor = AppColors.background,
   });
 
   @override
@@ -21,7 +18,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: backgroundColor,
       margin: EdgeInsets.only(bottom: 40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

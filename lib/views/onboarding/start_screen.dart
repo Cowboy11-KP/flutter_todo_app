@@ -4,7 +4,6 @@ import 'package:frontend/views/components/custom_app_bar.dart';
 import 'package:frontend/views/components/outlined_button.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:frontend/views/auth/login_screen.dart';
-import 'package:frontend/theme/app_color.dart';
 
 class StartScreen extends StatefulWidget {
   const StartScreen({super.key});
@@ -17,7 +16,6 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       appBar: CustomAppBar(
         title: '',
         showBack: true,

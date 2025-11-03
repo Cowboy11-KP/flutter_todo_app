@@ -25,3 +25,5 @@ android/app/release
 .env
 google-services.json
 firebase_options.dart
+test/
+.metadata

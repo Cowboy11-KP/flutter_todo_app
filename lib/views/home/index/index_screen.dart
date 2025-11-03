@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
+import 'package:frontend/views/home/index/custom_calendar.dart';
 
 class IndexScreen extends StatefulWidget {
   final VoidCallback? onAddPressed;
@@ -11,6 +13,7 @@ class IndexScreen extends StatefulWidget {
 }
 
 class IndexScreenState extends State<IndexScreen> {
+
   void showAddTaskSheet() {
     showModalBottomSheet(
       context: context,
@@ -64,19 +67,23 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
   final _taskController = TextEditingController();
   final _desController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    // Focus ngay khi mở
-    Future.delayed(const Duration(milliseconds: 200), () {
-      FocusScope.of(context).requestFocus(_focusNode);
-    });
+  void showChooseday (){
+    showDialog(
+      context: context, 
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(24),
+          child: const CustomCalendar(),
+        );
+      },
+    );
   }
-
-  final _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -112,16 +119,17 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
             controller: _desController,
           ),
           const SizedBox(height: 20),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.deepPurple,
-              minimumSize: const Size(double.infinity, 48),
-            ),
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Save Task', style: TextStyle(color: Colors.white)),
-          ),
+          Row(
+            children: [
+              IconButton(
+                onPressed: showChooseday, 
+                icon: SvgPicture.asset(
+                  "asset/icons/send.svg",
+                  colorFilter: ColorFilter.mode(theme.colorScheme.primary, BlendMode.srcIn),
+                )
+              )
+            ],
+          )
         ],
       ),
     );
