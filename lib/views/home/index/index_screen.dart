@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/viewmodels/todo_cubit.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
 import 'package:frontend/views/home/index/calendar_screen.dart';
 import 'package:frontend/views/home/index/category_screen.dart';
@@ -69,6 +71,12 @@ class _AddTaskSheet extends StatefulWidget {
 class _AddTaskSheetState extends State<_AddTaskSheet> {
   final _taskController = TextEditingController();
   final _desController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  DateTime? selectedDateTime; 
+  String? selectedCategory;
+  int? taskPriority;
+
   int _stepIndex = 0;
 
   Future<void> showChooseDay (){
@@ -83,20 +91,35 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
     );
   }
 
-  Future<void> showChooseTime (){
-    return showDialog(
-      context: context, 
-      builder: (context) {
-        return Dialog(
-          insetPadding: const EdgeInsets.all(24),
-          child: const TimePickerScreen(),
-        );
-      },
+  Future<void> showChooseDayAndTime() async {
+    final selectedDate = await showDialog<DateTime>(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: const CustomCalendar(),
+      ),
     );
+
+    if (selectedDate == null) return; // user cancel
+
+    final selectedTime = await showDialog<DateTime>(
+      context: context,
+      builder: (_) => Dialog(
+        insetPadding: const EdgeInsets.all(24),
+        child: TimePickerScreen(initialDate: selectedDate),
+      ),
+    );
+
+    if (selectedTime != null) {
+      setState(() {
+        selectedDateTime = selectedTime;
+      });
+      debugPrint("🕓 selectedDateTime = $selectedDateTime");
+    }
   }
 
-  Future<void> showChooseCategory(){
-   return showDialog(
+  Future<void> showChooseCategory() async {
+   final result = await showDialog(
       context: context, 
       builder: (context) {
         return Dialog(
@@ -105,10 +128,17 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
         );
       },
     );
+
+    if (result != null) {
+      setState(() {
+        selectedCategory = result;
+      });
+      debugPrint("📂 selectedCategory = $selectedCategory");
+    }
   }
 
-  Future<void> showTaskPriority(){
-   return showDialog(
+  Future<void> showTaskPriority() async {
+   final result = await showDialog(
       context: context, 
       builder: (context) {
         return Dialog(
@@ -117,39 +147,45 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
         );
       },
     );
+
+    setState(() {
+      taskPriority = result; // có thể null nếu user bỏ qua
+    });
+    debugPrint("⭐ taskPriority = $taskPriority");
   }
 
 
   void handleAddButtonPressed() async {
     if (_stepIndex == 0) {
-      await showChooseDay();
-      setState(() {
-        _stepIndex = 1;
-        debugPrint("➡️ Step changed to $_stepIndex");
-      });
+      if(_formKey.currentState!.validate()){
+        await showChooseDayAndTime();
+        if(selectedDateTime !=null) {
+          setState(() =>_stepIndex = 1);
+        }
+      }
     } if (_stepIndex == 1) {
-      await showChooseTime();
-      setState(() {
-        _stepIndex = 2;
-        debugPrint("➡️ Step changed to $_stepIndex");
-      });
-    } else if (_stepIndex == 2) {
       await showChooseCategory();
-      setState(() {
-        _stepIndex = 3;
-      });
-    } else if (_stepIndex == 3) {
+      setState(() =>_stepIndex = 2);
+    } if (_stepIndex == 2) {
       await showTaskPriority();
-      setState(() {
-        _stepIndex = 4;
-      });
+
+      await context.read<TodoCubit>().addTodo( 
+        title: _taskController.text,
+        description: _desController.text,
+        date: selectedDateTime,
+        category: selectedCategory,
+        priority: taskPriority
+      );
+
+      setState(() =>_stepIndex = 0);
+      Navigator.pop(context);
     }
   }
   
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-
+    
     return Padding(
       padding: EdgeInsets.only(
         left: 16,
@@ -173,17 +209,34 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
           const SizedBox(height: 16),
           const Text('Add Task', style: TextStyle(color: Colors.white, fontSize: 18)),
           const SizedBox(height: 12),
-          CustomTextField(
-            enabledBorder: false,
-            hint: 'Do math homework',
-            controller: _taskController,
+          Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                CustomTextField(
+                  enabledBorder: false,
+                  hint: 'Do math homework',
+                  controller: _taskController,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Task name cannot be empty';
+                    }
+                    if (value.length < 3) {
+                      return 'Name must be at least 3 characters';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 13),
+                CustomTextField(
+                  enabledBorder: false,
+                  hint: 'Description',
+                  controller: _desController,
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 13),
-          CustomTextField(
-            enabledBorder: false,
-            hint: 'Description',
-            controller: _desController,
-          ),
+          
           const SizedBox(height: 20),
           Row(
             children: [

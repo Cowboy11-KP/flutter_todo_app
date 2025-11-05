@@ -21,8 +21,8 @@ class TodoModelAdapter extends TypeAdapter<TodoModel> {
       title: fields[1] as String,
       description: fields[2] as String,
       date: fields[3] as DateTime,
-      category: fields[4] as String,
-      priority: fields[5] as int,
+      category: fields[4] as String?,
+      priority: fields[5] as int?,
       isDone: fields[6] as bool,
     );
   }

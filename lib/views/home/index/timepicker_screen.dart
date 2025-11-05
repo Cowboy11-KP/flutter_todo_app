@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:frontend/views/components/primary_button.dart';
 
 class TimePickerScreen extends StatefulWidget {
-  const TimePickerScreen({super.key});
+  final DateTime initialDate;
+  const TimePickerScreen({super.key, required this.initialDate});
 
   @override
   State<TimePickerScreen> createState() => _TimePickerScreenState();
@@ -106,7 +107,18 @@ class _TimePickerScreenState extends State<TimePickerScreen> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  int hour24 = selectedHour % 12;
+                  if (!isAM) hour24 += 12;
+                  
+                  final fullDateTime = DateTime(
+                    widget.initialDate.year,
+                    widget.initialDate.month,
+                    widget.initialDate.day,
+                    hour24,
+                    selectedMinute,
+                  );
+
+                  Navigator.pop(context, fullDateTime);
                 },
                 text: 'Save',
               )

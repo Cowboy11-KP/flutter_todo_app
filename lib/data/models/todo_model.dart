@@ -18,10 +18,10 @@ class TodoModel extends HiveObject {
   final DateTime date; // ngày (ngày, giờ)
 
   @HiveField(4)
-  final String category; // ví dụ: "University", "Work", "Personal"
+  final String? category; // ví dụ: "University", "Work", "Personal"
 
   @HiveField(5)
-  final int priority; // 1, 2, 3,...
+  final int? priority; // 1, 2, 3,...
 
   @HiveField(6)
   final bool isDone;
@@ -31,8 +31,8 @@ class TodoModel extends HiveObject {
     required this.title,
     this.description = '',
     required this.date,
-    this.category = 'General',
-    this.priority = 1,
+    this.category ,
+    this.priority,
     this.isDone = false,
   });
 
@@ -51,8 +51,8 @@ class TodoModel extends HiveObject {
     title: json['title'] ?? '',
     description: json['description'] ?? '',
     date: DateTime.parse(json['date']),
-    category: json['category'] ?? 'General',
-    priority: json['priority'] ?? 1,
+    category: json['category'],
+    priority: json['priority'],
     isDone: json['isDone'] ?? false,
   );
 }

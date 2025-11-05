@@ -167,7 +167,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, _selectedDate);
                 },
                 text: 'Choose Time',
               )

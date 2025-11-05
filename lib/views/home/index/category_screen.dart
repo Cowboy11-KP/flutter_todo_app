@@ -8,7 +8,7 @@ class CategoryScreen extends StatefulWidget {
 }
 
 class _CategoryScreenState extends State<CategoryScreen> {
-  String? selectedCategory;
+  String? _selectedCategory;
 
   final List<Map<String, dynamic>> listCategory = [
     {
@@ -102,11 +102,11 @@ class _CategoryScreenState extends State<CategoryScreen> {
             itemCount: listCategory.length,
             itemBuilder: (context, index ) {
               final category = listCategory[index];
-              final isSelected = selectedCategory == category['label'];
+              final isSelected = _selectedCategory == category['label'];
               return GestureDetector(
                 onTap:() {
                   setState(() {
-                    selectedCategory = category['label'];
+                    _selectedCategory = category['label'];
                   });
                 },
                 child: Column(
@@ -155,7 +155,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, _selectedCategory);
                 },
                 text: 'Choose Time',
               )

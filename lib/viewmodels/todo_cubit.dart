@@ -26,8 +26,8 @@ class TodoCubit extends Cubit<List<TodoModel>> {
     required String title,
     String description = '',
     DateTime? date,
-    String category = 'General',
-    int priority = 1,
+    String? category,
+    int? priority,
   }) async {
     final todo = TodoModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),

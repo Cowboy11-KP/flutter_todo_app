@@ -9,7 +9,7 @@ class TaskPriority extends StatefulWidget {
 }
 
 class _TaskPriorityState extends State<TaskPriority> {
-  int? taskPriority ;
+  int? _taskPriority;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -47,11 +47,11 @@ class _TaskPriorityState extends State<TaskPriority> {
             ),
             itemCount: 10,
             itemBuilder: (context, index ) {
-              final isSelected = taskPriority == index;
+              final isSelected = _taskPriority == index;
               return GestureDetector(
                 onTap:() {
                   setState(() {
-                    taskPriority = index;
+                    _taskPriority = index;
                   });
                 },
                 child: Container(
@@ -90,7 +90,7 @@ class _TaskPriorityState extends State<TaskPriority> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  Navigator.pop(context);
+                  Navigator.pop(context, _taskPriority);
                 },
                 text: 'Choose Time',
               )
