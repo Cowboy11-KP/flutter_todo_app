@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
-import 'package:frontend/views/home/index/custom_calendar.dart';
+import 'package:frontend/views/home/index/calendar_screen.dart';
+import 'package:frontend/views/home/index/category_screen.dart';
+import 'package:frontend/views/home/index/task_priority_screen.dart';
+import 'package:frontend/views/home/index/timepicker_screen.dart';
 
 class IndexScreen extends StatefulWidget {
   final VoidCallback? onAddPressed;
@@ -66,13 +69,13 @@ class _AddTaskSheet extends StatefulWidget {
 class _AddTaskSheetState extends State<_AddTaskSheet> {
   final _taskController = TextEditingController();
   final _desController = TextEditingController();
+  int _stepIndex = 0;
 
-  void showChooseday (){
-    showDialog(
+  Future<void> showChooseDay (){
+    return showDialog(
       context: context, 
       builder: (context) {
         return Dialog(
-          backgroundColor: Colors.transparent,
           insetPadding: const EdgeInsets.all(24),
           child: const CustomCalendar(),
         );
@@ -80,6 +83,69 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
     );
   }
 
+  Future<void> showChooseTime (){
+    return showDialog(
+      context: context, 
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(24),
+          child: const TimePickerScreen(),
+        );
+      },
+    );
+  }
+
+  Future<void> showChooseCategory(){
+   return showDialog(
+      context: context, 
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(24),
+          child: const CategoryScreen(),
+        );
+      },
+    );
+  }
+
+  Future<void> showTaskPriority(){
+   return showDialog(
+      context: context, 
+      builder: (context) {
+        return Dialog(
+          insetPadding: const EdgeInsets.all(24),
+          child: const TaskPriority(),
+        );
+      },
+    );
+  }
+
+
+  void handleAddButtonPressed() async {
+    if (_stepIndex == 0) {
+      await showChooseDay();
+      setState(() {
+        _stepIndex = 1;
+        debugPrint("➡️ Step changed to $_stepIndex");
+      });
+    } if (_stepIndex == 1) {
+      await showChooseTime();
+      setState(() {
+        _stepIndex = 2;
+        debugPrint("➡️ Step changed to $_stepIndex");
+      });
+    } else if (_stepIndex == 2) {
+      await showChooseCategory();
+      setState(() {
+        _stepIndex = 3;
+      });
+    } else if (_stepIndex == 3) {
+      await showTaskPriority();
+      setState(() {
+        _stepIndex = 4;
+      });
+    }
+  }
+  
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -122,7 +188,7 @@ class _AddTaskSheetState extends State<_AddTaskSheet> {
           Row(
             children: [
               IconButton(
-                onPressed: showChooseday, 
+                onPressed: handleAddButtonPressed,
                 icon: SvgPicture.asset(
                   "asset/icons/send.svg",
                   colorFilter: ColorFilter.mode(theme.colorScheme.primary, BlendMode.srcIn),

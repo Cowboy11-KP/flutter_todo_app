@@ -1,0 +1,103 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:frontend/views/components/primary_button.dart';
+class TaskPriority extends StatefulWidget {
+  const TaskPriority({super.key});
+
+  @override
+  State<TaskPriority> createState() => _TaskPriorityState();
+}
+
+class _TaskPriorityState extends State<TaskPriority> {
+  int? taskPriority ;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: const Color(0xFF2A2A2A),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Task Priority',
+           style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 10,),
+          // Divider
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            child: const Divider(color: Colors.white24),
+          ),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+            ),
+            itemCount: 10,
+            itemBuilder: (context, index ) {
+              final isSelected = taskPriority == index;
+              return GestureDetector(
+                onTap:() {
+                  setState(() {
+                    taskPriority = index;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? Colors.deepPurpleAccent
+                        : Color(0xff272727),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset('asset/icons/flag.svg',height: 24,),
+                      const SizedBox(height: 5),
+                      Text("${index}",
+                        style: Theme.of(context).textTheme.bodySmall,
+                      )
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+          // BUTTONS 
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.deepPurpleAccent)),
+              ),
+              PrimaryButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                text: 'Choose Time',
+              )
+            ],
+          )
+        ],
+      ),
+    ) ;
+  }
+}
