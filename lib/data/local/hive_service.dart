@@ -1,3 +1,4 @@
+import 'package:frontend/data/models/category_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:frontend/data/models/todo_model.dart';
 
@@ -19,4 +20,19 @@ class LocalTodoService {
   Future<void> updateTodo(TodoModel todo) async => await _box.put(todo.id, todo);
 
   Future<void> deleteTodo(String id) async => await _box.delete(id);
+}
+
+class LocalCategoryService {
+  final Box<CategoryModel> _box = Hive.box<CategoryModel>('categories');
+
+  List<CategoryModel> getAll() => _box.values.toList();
+
+  Future<void> add(CategoryModel category) async {
+    await _box.put(category.label, category); // dùng label làm key
+  }
+
+  Future<void> delete(String label) async {
+    await _box.delete(label);
+  }
+
 }

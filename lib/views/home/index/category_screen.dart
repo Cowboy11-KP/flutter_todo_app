@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:frontend/data/constants/default_categories.dart';
+import 'package:frontend/data/models/category_model.dart';
 import 'package:frontend/views/components/primary_button.dart';
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -10,53 +13,7 @@ class CategoryScreen extends StatefulWidget {
 class _CategoryScreenState extends State<CategoryScreen> {
   String? _selectedCategory;
 
-  final List<Map<String, dynamic>> listCategory = [
-    {
-      'label': 'Grocery',
-      'color': const Color(0xFFCCFF80),
-      'icon': Icons.local_grocery_store,
-    },
-    {
-      'label': 'Work',
-      'color': const Color(0xFFFF9680),
-      'icon': Icons.work,
-    },
-    {
-      'label': 'Sport',
-      'color': const Color(0xFF80FFFF),
-      'icon': Icons.fitness_center,
-    },
-    {
-      'label': 'Design',
-      'color': const Color(0xFF80FFD9),
-      'icon': Icons.design_services,
-    },
-    {
-      'label': 'University',
-      'color': const Color(0xFF809CFF),
-      'icon': Icons.school,
-    },
-    {
-      'label': 'Social',
-      'color': const Color(0xFFFF80EB),
-      'icon': Icons.campaign,
-    },
-    {
-      'label': 'Music',
-      'color': const Color(0xFFFC80FF),
-      'icon': Icons.music_note,
-    },
-    {
-      'label': 'Health',
-      'color': const Color(0xFF80FFA3),
-      'icon': Icons.favorite,
-    },
-    {
-      'label': 'Movie',
-      'color': const Color(0xFF80D1FF),
-      'icon': Icons.movie,
-    },
-  ];
+  final List<CategoryModel> categories = defaultCategories;
 
   Color darken(Color color, [double amount = .2]) {
     final hsl = HSLColor.fromColor(color);
@@ -99,14 +56,14 @@ class _CategoryScreenState extends State<CategoryScreen> {
               mainAxisSpacing: 42,
               childAspectRatio: 0.7
             ),
-            itemCount: listCategory.length,
+            itemCount: categories.length,
             itemBuilder: (context, index ) {
-              final category = listCategory[index];
-              final isSelected = _selectedCategory == category['label'];
+              final category = categories[index];
+              final isSelected = _selectedCategory == category.label;
               return GestureDetector(
                 onTap:() {
                   setState(() {
-                    _selectedCategory = category['label'];
+                    _selectedCategory = category.label;
                   });
                 },
                 child: Column(
@@ -118,22 +75,24 @@ class _CategoryScreenState extends State<CategoryScreen> {
                         duration: const Duration(milliseconds: 150),
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
-                          color: category['color'],
+                          color: category.color,
                           borderRadius: BorderRadius.circular(4),
                           border: isSelected
-                            ? Border.all(color: darken(category['color'], 0.25),width: 3)
+                            ? Border.all(color: darken(category.color, 0.25),width: 3)
                             : null,
                         ),
-                        child: Icon(
-                          category['icon'],
-                          color: darken(category['color'], 0.5),
-                          size: 24,
+                        child: SvgPicture.asset(
+                          category.svgPath,
+                          width: 28,
+                          height: 28,
+                          colorFilter: ColorFilter.mode( darken(category.color, 0.5), BlendMode.srcIn,
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 5),
                     Text(
-                      category['label'],
+                      category.label,
                       style: Theme.of(context).textTheme.bodySmall,maxLines: 1, overflow: TextOverflow.ellipsis,
                     )
                   ],
