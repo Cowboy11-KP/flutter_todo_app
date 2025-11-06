@@ -1,34 +1,38 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/data/models/todo_model.dart';
 import 'package:frontend/repository/todo_repository.dart';
+import 'package:frontend/viewmodels/todo_state.dart';
+import 'package:flutter/material.dart';
 
-class TodoCubit extends Cubit<List<TodoModel>> {
+class TodoCubit extends Cubit<TodoState> {
   final TodoRepository repository;
 
-  TodoCubit(this.repository) : super([]);
+  TodoCubit(this.repository) : super(TodoInitial());
 
-  /// 🔹 Load dữ liệu từ local + sync với Firebase
+  /// Load dữ liệu từ local + sync Firebase
   Future<void> loadTodos() async {
-    // B1: Lấy dữ liệu local
-    final localTodos = repository.getLocalTodos();
-    emit(localTodos);
+    emit(TodoLoading());
+    try {
+      final localTodos = repository.getLocalTodos();
+      emit(TodoLoaded(localTodos));
 
-    // B2: Nếu có user, đồng bộ Firebase -> Hive
-    await repository.syncFromFirebase();
-
-    // B3: Lấy lại danh sách mới sau khi sync
-    final updatedTodos = repository.getLocalTodos();
-    emit(updatedTodos);
+      // await repository.syncFromFirebase();
+      final updatedTodos = repository.getLocalTodos();
+      emit(TodoLoaded(updatedTodos));
+    } catch (e) {
+      emit(TodoError('Không thể tải dữ liệu: $e'));
+    }
   }
 
-  /// 🔹 Thêm Todo mới
+  /// Thêm Todo mới
   Future<void> addTodo({
-    required String title,
-    String description = '',
-    DateTime? date,
-    String? category,
-    int? priority,
-  }) async {
+  required String title,
+  String description = '',
+  DateTime? date,
+  String? category,
+  int? priority,
+}) async {
+  try {
     final todo = TodoModel(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       title: title,
@@ -38,29 +42,57 @@ class TodoCubit extends Cubit<List<TodoModel>> {
       priority: priority,
       isDone: false,
     );
+
     await repository.addTodo(todo);
-    emit(repository.getLocalTodos());
-  }
+    final todos = repository.getLocalTodos();
 
-  /// 🔹 Đánh dấu hoàn thành / chưa hoàn thành
+    // ✅ In ra log chi tiết
+    debugPrint("✅ Đã thêm task mới:");
+    debugPrint("   🏷️  Title: ${todo.title}");
+    debugPrint("   📝  Description: ${todo.description}");
+    debugPrint("   📅  Date: ${todo.date}");
+    debugPrint("   📂  Category: ${todo.category}");
+    debugPrint("   ⭐  Priority: ${todo.priority}");
+    debugPrint("   🆔  ID: ${todo.id}");
+    debugPrint("   Tổng số task hiện tại: ${todos.length}");
+
+    emit(TodoActionSuccess(todos, 'Đã thêm task thành công!'));
+  } catch (e) {
+    debugPrint("❌ Lỗi khi thêm task: $e");
+    emit(TodoError('Thêm thất bại: $e'));
+  }
+}
+
+
+  /// Toggle done
   Future<void> toggleDone(TodoModel todo) async {
-    final updated = TodoModel(
-      id: todo.id,
-      title: todo.title,
-      description: todo.description,
-      date: todo.date,
-      category: todo.category,
-      priority: todo.priority,
-      isDone: !todo.isDone,
-    );
+    try {
+      final updated = TodoModel(
+        id: todo.id,
+        title: todo.title,
+        description: todo.description,
+        date: todo.date,
+        category: todo.category,
+        priority: todo.priority,
+        isDone: !todo.isDone,
+      );
 
-    await repository.updateTodo(updated);
-    emit(repository.getLocalTodos());
+      await repository.updateTodo(updated);
+      final todos = repository.getLocalTodos();
+      emit(TodoLoaded(todos));
+    } catch (e) {
+      emit(TodoError('Không thể cập nhật: $e'));
+    }
   }
 
-  /// 🔹 Xóa Todo
+  /// Xóa Todo
   Future<void> deleteTodo(String id) async {
-    await repository.deleteTodo(id);
-    emit(repository.getLocalTodos());
+    try {
+      await repository.deleteTodo(id);
+      final todos = repository.getLocalTodos();
+      emit(TodoActionSuccess(todos, 'Đã xóa task thành công!'));
+    } catch (e) {
+      emit(TodoError('Xóa thất bại: $e'));
+    }
   }
 }
