@@ -66,7 +66,7 @@ class _TaskPriorityState extends State<TaskPriority> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SvgPicture.asset('asset/icons/flag.svg',height: 24,),
+                      SvgPicture.asset('assets/icons/flag.svg',height: 24,),
                       const SizedBox(height: 5),
                       Text("${index}",
                         style: Theme.of(context).textTheme.bodySmall,

@@ -16,17 +16,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   final List<Map<String, String>> _pages = [
     {
-      "image": "asset/onboad/Onboard1.svg",
+      "image": "assets/onboad/Onboard1.svg",
       "title": "Manage your tasks",
       "desc": "You can easily manage all of your daily tasks in DoMe for free",
     },
     {
-      "image": "asset/onboad/Onboard2.svg",
+      "image": "assets/onboad/Onboard2.svg",
       "title": "Create daily routine",
       "desc": "In UpTodo you can create your personalized routine to stay productive",
     },
     {
-      "image": "asset/onboad/Onboard3.svg",
+      "image": "assets/onboad/Onboard3.svg",
       "title": "Organize your tasks",
       "desc": "You can organize your daily tasks by adding your tasks into separate categories",
     },

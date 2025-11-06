@@ -43,7 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
         children: _screens,
       ),
       bottomNavigationBar: BottomAppBar(
-        color: const Color(0xFF2E2E2E),
+        color: Theme.of(context).colorScheme.surface,
+        elevation: 0,
         notchMargin: 8,
         height: 100,
         child: Row(
@@ -54,8 +55,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem('asset/icons/home.svg', 'Index', 0),
-                  _buildNavItem('asset/icons/calendar.svg', 'Calendar', 1),
+                  _buildNavItem('assets/icons/home.svg', 'Index', 0),
+                  _buildNavItem('assets/icons/calendar.svg', 'Calendar', 1),
                 ],
               ),
             ),
@@ -67,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem('asset/icons/clock.svg', 'Focus', 2),
-                  _buildNavItem('asset/icons/user.svg', 'Profile', 3),
+                  _buildNavItem('assets/icons/clock.svg', 'Focus', 2),
+                  _buildNavItem('assets/icons/user.svg', 'Profile', 3),
                 ],
               ),
             ),

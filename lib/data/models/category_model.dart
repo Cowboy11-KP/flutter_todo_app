@@ -12,7 +12,7 @@ class CategoryModel extends HiveObject {
   int colorValue;
 
   @HiveField(2)
-  String svgPath; // <-- thay vì iconName
+  String svgPath;
 
   CategoryModel({
     required this.label,
