@@ -44,6 +44,7 @@ class _TaskPriorityState extends State<TaskPriority> {
               crossAxisCount: 4,
               crossAxisSpacing: 16,
               mainAxisSpacing: 16,
+              childAspectRatio: 0.9
             ),
             itemCount: 10,
             itemBuilder: (context, index ) {

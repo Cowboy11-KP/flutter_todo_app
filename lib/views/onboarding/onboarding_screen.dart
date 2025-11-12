@@ -13,7 +13,6 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
   int _currentPage = 0;
-
   final List<Map<String, String>> _pages = [
     {
       "image": "assets/onboad/Onboard1.svg",

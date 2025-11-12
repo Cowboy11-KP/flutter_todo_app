@@ -13,36 +13,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   });
 
   @override
-  Size get preferredSize => const Size.fromHeight(140); // Tăng chiều cao
+  Size get preferredSize => const Size.fromHeight(70);
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 40),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (showBack)
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
-                  onPressed: () => Navigator.pop(context),
-                ),
-              if (actions != null) Row(children: actions!),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.headlineLarge,
-            ),
-          ),
-        ],
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      centerTitle: true,
+      leading: showBack
+        ? IconButton(
+          icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        )
+        : Container(),
+      title: Text(title,
+        style: Theme.of(context).textTheme.headlineMedium
       ),
     );
   }

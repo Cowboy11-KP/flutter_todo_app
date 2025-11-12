@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:frontend/views/home/calendar_screen.dart';
+import 'package:frontend/views/home/calendar/calendar_screen.dart';
 import 'package:frontend/views/home/focus_screen.dart';
 import 'package:frontend/views/home/index/index_screen.dart';
 import 'package:frontend/views/home/profile_screen.dart';

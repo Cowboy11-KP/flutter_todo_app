@@ -11,9 +11,23 @@ class TimePickerScreen extends StatefulWidget {
 }
 
 class _TimePickerScreenState extends State<TimePickerScreen> {
-  int selectedHour = 8;
-  int selectedMinute = 20;
-  bool isAM = true;
+
+  late int selectedHour;
+  late int selectedMinute;
+  late bool isAM;
+
+  @override
+  void initState() {
+    super.initState();
+    final now = DateTime.now();
+
+    // Giờ dạng 12h
+    selectedHour = now.hour % 12;
+    if (selectedHour == 0) selectedHour = 12;
+
+    selectedMinute = now.minute;
+    isAM = now.hour < 12;
+  }
 
   @override
   Widget build(BuildContext context) {

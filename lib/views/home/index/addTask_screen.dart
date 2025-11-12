@@ -3,10 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/viewmodels/todo_cubit.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
-import 'package:frontend/views/components/custom_calendar_screen.dart';
-import 'package:frontend/views/components/custom_category_screen.dart';
+import 'package:frontend/views/components/custom_calendar.dart';
+import 'package:frontend/views/components/custom_category.dart';
 import 'package:frontend/views/components/custom_task_priority_screen.dart';
-import 'package:frontend/views/components/custom_timepicker_screen.dart';
+import 'package:frontend/views/components/custom_timepicker.dart';
 
 class AddTaskSheet extends StatefulWidget {
   const AddTaskSheet();

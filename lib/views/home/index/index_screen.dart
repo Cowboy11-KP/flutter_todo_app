@@ -92,7 +92,25 @@ class IndexScreenState extends State<IndexScreen>
                         todos.where((todo) => todo.isDone).toList();
 
                     return SingleChildScrollView(
-                      child: Column(
+                      child: todayTodos.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset('assets/empty.svg'),
+                            Text(
+                              'What do you want to do today?',
+                              style: Theme.of(context).textTheme.headlineMedium
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Tap + to add your tasks',
+                              style: Theme.of(context).textTheme.bodyLarge
+                            )
+                          ],
+                        ),
+                      )
+                      : Column(
                         children: [
                           // ---------------- TODAY SECTION ----------------
                           _buildSectionHeader(
@@ -107,12 +125,7 @@ class IndexScreenState extends State<IndexScreen>
                             curve: Curves.easeInOut,
                             child: _showToday
                                 ? Column(
-                                    children: todayTodos.isEmpty
-                                        ? [
-                                            const SizedBox(height: 8),
-                                            const Text('No tasks today')
-                                          ]
-                                        : todayTodos
+                                    children: todayTodos
                                             .map((todo) =>
                                                 _buildTodoItem(context, todo))
                                             .toList(),
@@ -180,7 +193,7 @@ class IndexScreenState extends State<IndexScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(title,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+              style: Theme.of(context).textTheme.labelMedium
             ),
             const SizedBox(width: 10),
             Icon(expanded ? Icons.expand_less : Icons.expand_more)
@@ -212,7 +225,7 @@ class IndexScreenState extends State<IndexScreen>
             children: [
               Text(
                 'Today At ${todo.date.hour}:${todo.date.minute}',
-                style: Theme.of(context).textTheme.bodyMedium
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
               ),
               Row(
                 children: [
