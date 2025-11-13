@@ -3,23 +3,59 @@ import 'package:frontend/views/components/primary_button.dart';
 import 'package:intl/intl.dart';
 
 class CustomCalendar extends StatefulWidget {
-  final bool hidenButton;
+  final bool hideButton;
   final bool isListView;
-  
-  const CustomCalendar({
+  final void Function(DateTime)? onDateSelected;
+
+  const CustomCalendar._({
     super.key, 
-    this.hidenButton = false,
-    this.isListView = false
+    this.hideButton = false,
+    this.isListView = false,
+    this.onDateSelected
 
   });
+
+   static CustomCalendar listView({
+    Key? key,
+    bool hideButton = false,
+    void Function(DateTime)? onDateSelected,
+  }) {
+    return CustomCalendar._ (
+      key: key,
+      isListView: true,
+      hideButton: hideButton,
+      onDateSelected: onDateSelected,
+    );
+  }
+
+  static CustomCalendar gridView({
+    Key? key,
+    bool hideButton = false,
+    void Function(DateTime)? onDateSelected,
+  }) {
+    return CustomCalendar._(
+      key: key,
+      isListView: false,
+      hideButton: hideButton,
+      onDateSelected: onDateSelected,
+    );
+  }
 
   @override
   State<CustomCalendar> createState() => _CustomCalendarState();
 }
 
 class _CustomCalendarState extends State<CustomCalendar> {
-  DateTime _currentMonth = DateTime.now();
-  DateTime? _selectedDate = DateTime.now();
+  late DateTime _currentMonth;
+  late DateTime _selectedDate;
+  final ScrollController _scrollController = ScrollController();
+  @override
+  void initState() {
+    super.initState();
+    _currentMonth = DateTime.now();
+    _selectedDate = DateTime.now();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToSelected());
+  }
 
   List<DateTime> _generateDaysInMonth(DateTime month) {
     final firstDayOfMonth = DateTime(month.year, month.month, 1);
@@ -42,6 +78,25 @@ class _CustomCalendarState extends State<CustomCalendar> {
     });
   }
 
+   void _onSelectDay(DateTime day) {
+    setState(() {
+      _selectedDate = day;
+    });
+    widget.onDateSelected?.call(day);
+    _scrollToSelected();
+  }
+  
+  void _scrollToSelected() {
+    if (!widget.isListView || !_scrollController.hasClients) return;
+    final index = _selectedDate.day - 1;
+    final targetOffset = (index * 50.0) - (MediaQuery.of(context).size.width / 2) + 25;
+    _scrollController.animateTo(
+      targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final days = _generateDaysInMonth(_currentMonth);
@@ -58,212 +113,208 @@ class _CustomCalendarState extends State<CustomCalendar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // HEADER 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.chevron_left, color: Colors.white70),
-                onPressed: () => _changeMonth(-1),
+          _buildHeader(monthName),
+          widget.isListView
+            ? _buildListView(days, today)
+            : _buildGridView(days, today),
+          if (!widget.hideButton) const SizedBox(height: 8),
+          if (!widget.hideButton) _buildActionButtons(),
+          
+        ],
+      ),
+    );
+  }
+  Widget _buildHeader(String monthName) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        IconButton(
+          icon: const Icon(Icons.chevron_left, color: Colors.white70),
+          onPressed: () => _changeMonth(-1),
+        ),
+        Column(
+          children: [
+            Text(
+              monthName.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
-              Column(
+            ),
+            Text(
+              _currentMonth.year.toString(),
+              style: const TextStyle(color: Colors.white54, fontSize: 14),
+            ),
+          ],
+        ),
+        IconButton(
+          icon: const Icon(Icons.chevron_right, color: Colors.white70),
+          onPressed: () => _changeMonth(1),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildListView(List<DateTime> days, DateTime today){
+    return SizedBox(
+      height: 55,
+      child: ListView.builder(
+        controller: _scrollController,
+        scrollDirection: Axis.horizontal,
+        itemCount: days.length,
+        itemBuilder: (context, index) {
+          final day = days[index];
+          final isCurrentMonth = day.month == _currentMonth.month;
+          final isSelected = _selectedDate.year == day.year &&
+                             _selectedDate.month == day.month &&
+                             _selectedDate.day == day.day;
+          final isPastDay = day.isBefore(DateTime(today.year, today.month, today.day));
+
+          final weekday = DateFormat('EEE').format(day).toUpperCase();
+
+          return GestureDetector(
+            onTap: (isCurrentMonth && !isPastDay)
+                ? () => _onSelectDay(day)
+                : null,
+            child: Container(
+              width: 40,
+              margin: const EdgeInsets.only(right: 10),
+              decoration: BoxDecoration(
+                color: isSelected
+                    ? Colors.deepPurpleAccent
+                    : (isCurrentMonth && !isPastDay)
+                        ? const Color(0xFF3A3A3A)
+                        : Colors.transparent,
+                borderRadius: BorderRadius.circular(4),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    monthName.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
+                    weekday,
+                    style: TextStyle(
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
+                      color: (index % 7 == 0)
+                          ? Colors.redAccent // Chủ nhật
+                          : (index % 7 == 1)
+                              ? Colors.redAccent // Thứ 7
+                              : Colors.white70,
                     ),
                   ),
+                  const SizedBox(height: 4),
                   Text(
-                    _currentMonth.year.toString(),
-                    style: const TextStyle(
-                      color: Colors.white54,
-                      fontSize: 14,
+                    '${day.day}',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: isSelected
+                          ? Colors.white
+                          : (isCurrentMonth && !isPastDay)
+                              ? Colors.white
+                              : Colors.white30,
                     ),
                   ),
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right, color: Colors.white70),
-                onPressed: () => _changeMonth(1),
-              ),
-            ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildGridView(List<DateTime> days, DateTime today){
+    return Column(
+      children: [
+        Divider(color: Colors.white24),
+
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(7, (index) {
+              const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+              final isWeekend = (index == 0 || index == 6);
+
+              return Text(
+                weekDays[index],
+                style: TextStyle(
+                  color: isWeekend ? Colors.redAccent : Colors.white70,
+                  fontWeight: FontWeight.w500,
+                ),
+              );
+            }),
           ),
+        ),
 
-          // Divider
-          !widget.isListView 
-            ? Divider(color: Colors.white24)
-            : Container(),
-
-          // WEEK DAYS HEADER 
-          !widget.isListView 
-            ? Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: List.generate(7, (index) {
-                    const weekDays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                    final isWeekend = (index == 0 || index == 6);
-
-                    return Text(
-                      weekDays[index],
-                      style: TextStyle(
-                        color: isWeekend ? Colors.redAccent : Colors.white70,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    );
-                  }),
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(8),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 7,
+            crossAxisSpacing: 23,
+            mainAxisSpacing: 10,
+          ),
+          itemCount: days.length,
+          itemBuilder: (context, index) {
+            final day = days[index];
+            final isCurrentMonth = day.month == _currentMonth.month;
+            final isSelected = _selectedDate.year == day.year &&
+                               _selectedDate.month == day.month &&
+                               _selectedDate.day == day.day;
+              final isPastDay = day.isBefore(DateTime(today.year, today.month, today.day));
+            return GestureDetector(
+              onTap: (isCurrentMonth && !isPastDay)
+                  ? () => _onSelectDay(day)
+                  : null,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Colors.deepPurpleAccent
+                      : (isCurrentMonth && !isPastDay)
+                          ? Colors.white12
+                          : Colors.transparent,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-              )
-            : SizedBox(height: 14,),
-
-          // DAYS GRID
-          !widget.isListView 
-            ? GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                padding: const EdgeInsets.all(8),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7,
-                  crossAxisSpacing: 23,
-                  mainAxisSpacing: 10,
-                ),
-                itemCount: days.length,
-                itemBuilder: (context, index) {
-                  final day = days[index];
-                  final isCurrentMonth = day.month == _currentMonth.month;
-                  final isSelected = _selectedDate != null &&
-                      _selectedDate!.year == day.year &&
-                      _selectedDate!.month == day.month &&
-                      _selectedDate!.day == day.day;
-                    final isPastDay = day.isBefore(DateTime(today.year, today.month, today.day));
-                  return GestureDetector(
-                    onTap: (isCurrentMonth && !isPastDay)
-                        ? () => setState(() => _selectedDate = day)
-                        : null,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? Colors.deepPurpleAccent
-                            : (isCurrentMonth && !isPastDay)
-                                ? Colors.white12
-                                : Colors.transparent,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        '${day.day}',
-                        style: TextStyle(
-                          color: (isCurrentMonth && !isPastDay)
-                              ? Colors.white
-                              : Colors.white38,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              )
-              : SizedBox(
-                  height: 55,
-                  child: ListView.builder(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: days.length,
-                    itemBuilder: (context, index) {
-                      final day = days[index];
-                      final isCurrentMonth = day.month == _currentMonth.month;
-                      final isSelected = _selectedDate != null &&
-                          _selectedDate!.year == day.year &&
-                          _selectedDate!.month == day.month &&
-                          _selectedDate!.day == day.day;
-                      final isPastDay = day.isBefore(DateTime(today.year, today.month, today.day));
-
-                      final weekday = DateFormat('EEE').format(day).toUpperCase();
-
-                      return GestureDetector(
-                        onTap: (isCurrentMonth && !isPastDay)
-                            ? () => setState(() => _selectedDate = day)
-                            : null,
-                        child: Container(
-                          width: 40,
-                          margin: const EdgeInsets.only(right: 10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Colors.deepPurpleAccent
-                                : (isCurrentMonth && !isPastDay)
-                                    ? const Color(0xFF3A3A3A)
-                                    : Colors.transparent,
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                weekday,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: (index % 7 == 0)
-                                      ? Colors.redAccent // Chủ nhật
-                                      : (index % 7 == 6)
-                                          ? Colors.redAccent // Thứ 7
-                                          : Colors.white70,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                '${day.day}',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: isSelected
-                                      ? Colors.white
-                                      : (isCurrentMonth && !isPastDay)
-                                          ? Colors.white
-                                          : Colors.white30,
-                                ),
-                              ),
-                              // if (!isSelected && (index % 3 == 0))
-                              //   const Padding(
-                              //     padding: EdgeInsets.only(top: 4),
-                              //     child: CircleAvatar(
-                              //       radius: 2,
-                              //       backgroundColor: Colors.deepPurpleAccent,
-                              //     ),
-                              //   ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                alignment: Alignment.center,
+                child: Text(
+                  '${day.day}',
+                  style: TextStyle(
+                    color: (isCurrentMonth && !isPastDay)
+                        ? Colors.white
+                        : Colors.white38,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-
-          // BUTTONS
-          !widget.hidenButton
-          ? Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.deepPurpleAccent)),
               ),
-              PrimaryButton(
-                onPressed: () {
-                  Navigator.pop(context, _selectedDate);
-                },
-                text: 'Choose Time',
-              )
-            ],
-          )
-          : Container()
-        ],
-      ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+   Widget _buildActionButtons(){
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text('Cancel',
+              style: TextStyle(color: Colors.deepPurpleAccent)),
+        ),
+        PrimaryButton(
+          onPressed: () {
+            Navigator.pop(context, _selectedDate);
+          },
+          text: 'Choose Time',
+        )
+      ],
     );
   }
 }

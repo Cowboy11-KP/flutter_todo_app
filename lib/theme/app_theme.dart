@@ -4,13 +4,13 @@ import 'package:frontend/theme/app_color.dart';
 class AppTheme {
   // 🌙 DARK THEME
   static ThemeData darkTheme = ThemeData(
-    brightness: Brightness.dark,
     colorScheme: const ColorScheme.dark(
       primary: AppColors.darkPrimary,
       surface: AppColors.darkSurface,
       onPrimary: Colors.white,
       onSurface: AppColors.darkTextPrimary,
-      secondary: AppColors.darkTextSecondary
+      secondary: AppColors.darkTextSecondary,
+      primaryContainer: AppColors.darkContainer
     ),
     scaffoldBackgroundColor: AppColors.darkBackground,
     fontFamily: 'Lato',

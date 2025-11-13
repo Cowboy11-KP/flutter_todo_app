@@ -32,7 +32,7 @@ class AddTaskSheetState extends State<AddTaskSheet> {
       builder: (context) {
         return Dialog(
           insetPadding: const EdgeInsets.all(24),
-          child: const CustomCalendar(),
+          child: CustomCalendar.gridView(),
         );
       },
     );
@@ -43,7 +43,7 @@ class AddTaskSheetState extends State<AddTaskSheet> {
       context: context,
       builder: (_) => Dialog(
         insetPadding: const EdgeInsets.all(24),
-        child: const CustomCalendar(),
+        child: CustomCalendar.gridView(),
       ),
     );
 
