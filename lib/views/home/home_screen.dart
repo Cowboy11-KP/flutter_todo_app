@@ -81,6 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 64,
         width: 64,
         child: FloatingActionButton(
+          backgroundColor: Theme.of(context).colorScheme.primary,
           onPressed: () {
             if (_selectedIndex == 0) {
               // 👇 gọi hàm show form trong IndexScreen

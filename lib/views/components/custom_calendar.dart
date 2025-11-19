@@ -159,8 +159,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
   Widget _buildListView(List<DateTime> days, DateTime today){
     return SizedBox(
       height: 55,
-      child: ListView.builder(
-        controller: _scrollController,
+      child: ListView.builder( 
         scrollDirection: Axis.horizontal,
         itemCount: days.length,
         itemBuilder: (context, index) {

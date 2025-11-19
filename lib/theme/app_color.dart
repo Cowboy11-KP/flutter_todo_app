@@ -8,5 +8,12 @@ class AppColors {
   static const darkContainer = Color(0xFF4C4C4C);
   static const darkTextPrimary = Colors.white;
   static const darkTextSecondary = Color(0xFF9A9A9A);
-
+  
+  static Color darken(Color color, [double amount = .2]) {
+    final hsl = HSLColor.fromColor(color);
+    final hslDark = hsl.withLightness(
+      (hsl.lightness - amount).clamp(0.0, 1.0),
+    );
+    return hslDark.toColor();
+  }
 }

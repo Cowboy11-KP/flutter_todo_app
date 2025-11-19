@@ -9,7 +9,7 @@ class TodoCubit extends Cubit<TodoState> {
 
   TodoCubit(this.repository) : super(TodoInitial());
 
-  /// Load dữ liệu từ local + sync Firebase
+  /// Load dữ liệu từ local sync Firebase
   Future<void> loadTodos() async {
     emit(TodoLoading());
     try {

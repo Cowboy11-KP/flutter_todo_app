@@ -3,16 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
 import 'package:frontend/data/models/todo_model.dart';
+import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/todo_cubit.dart';
 import 'package:frontend/viewmodels/todo_state.dart';
 import 'package:frontend/views/home/index/addTask_screen.dart';
-Color darken(Color color, [double amount = .2]) {
-    final hsl = HSLColor.fromColor(color);
-    final hslDark = hsl.withLightness(
-      (hsl.lightness - amount).clamp(0.0, 1.0),
-    );
-    return hslDark.toColor();
-  }
+
 class IndexScreen extends StatefulWidget {
   final VoidCallback? onAddPressed;
 
@@ -51,6 +46,7 @@ class IndexScreenState extends State<IndexScreen>
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 13),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // 🔹 Header
             Row(
@@ -72,8 +68,7 @@ class IndexScreenState extends State<IndexScreen>
                 builder: (context, state) {
                   if (state is TodoLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is TodoLoaded ||
-                      state is TodoActionSuccess) {
+                  } else if (state is TodoLoaded || state is TodoActionSuccess) {
                     final todos = (state is TodoLoaded)
                         ? state.todos
                         : (state as TodoActionSuccess).todos;
@@ -90,13 +85,78 @@ class IndexScreenState extends State<IndexScreen>
 
                     final completedTodos =
                         todos.where((todo) => todo.isDone).toList();
+                    if (todayTodos.isNotEmpty){
+                      return SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // ---------------- TODAY SECTION ----------------
+                            _buildSectionHeader(
+                              title: 'Today',
+                              expanded: _showToday,
+                              onTap: () =>
+                                  setState(() => _showToday = !_showToday),
+                            ),
 
-                    return SingleChildScrollView(
-                      child: todayTodos.isEmpty
-                      ? Center(
+                            AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              alignment: Alignment.topCenter,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: _showToday
+                                    ? Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: todayTodos
+                                                .map((todo) =>
+                                                    _buildTodoItem(context, todo))
+                                                .toList(),
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            // ---------------- COMPLETED SECTION ----------------
+                            _buildSectionHeader(
+                              title: 'Completed',
+                              expanded: _showCompleted,
+                              onTap: () =>
+                                  setState(() => _showCompleted = !_showCompleted),
+                            ),
+
+                            AnimatedSize(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                              alignment: Alignment.topCenter,
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: _showCompleted
+                                    ? Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: completedTodos.isEmpty
+                                            ? [
+                                                const SizedBox(height: 8),
+                                                const Text('No completed tasks')
+                                              ]
+                                            : completedTodos
+                                                .map((todo) =>
+                                                    _buildTodoItem(context, todo))
+                                                .toList(),
+                                      )
+                                    : const SizedBox.shrink(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            const SizedBox(height: 200),
                             SvgPicture.asset('assets/empty.svg'),
                             Text(
                               'What do you want to do today?',
@@ -109,62 +169,9 @@ class IndexScreenState extends State<IndexScreen>
                             )
                           ],
                         ),
-                      )
-                      : Column(
-                        children: [
-                          // ---------------- TODAY SECTION ----------------
-                          _buildSectionHeader(
-                            title: 'Today',
-                            expanded: _showToday,
-                            onTap: () =>
-                                setState(() => _showToday = !_showToday),
-                          ),
-
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: _showToday
-                                ? Column(
-                                    children: todayTodos
-                                            .map((todo) =>
-                                                _buildTodoItem(context, todo))
-                                            .toList(),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          // ---------------- COMPLETED SECTION ----------------
-                          _buildSectionHeader(
-                            title: 'Completed',
-                            expanded: _showCompleted,
-                            onTap: () =>
-                                setState(() => _showCompleted = !_showCompleted),
-                          ),
-
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: _showCompleted
-                                ? Column(
-                                    children: completedTodos.isEmpty
-                                        ? [
-                                            const SizedBox(height: 8),
-                                            const Text('No completed tasks')
-                                          ]
-                                        : completedTodos
-                                            .map((todo) =>
-                                                _buildTodoItem(context, todo))
-                                            .toList(),
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                        ],
-                      ),
-                    );
+                      );
+                    }
                   }
-
                   return const SizedBox();
                 },
               ),
@@ -190,7 +197,7 @@ class IndexScreenState extends State<IndexScreen>
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(title,
               style: Theme.of(context).textTheme.labelMedium
@@ -242,13 +249,13 @@ class IndexScreenState extends State<IndexScreen>
                           category.svgPath,
                           height: 14,
                           width: 14,
-                          colorFilter: ColorFilter.mode(darken(category.color, 0.5), BlendMode.srcIn,),
+                          colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
                         ),
                         const SizedBox(width: 5),
                         Text(
                           category.label,
                           style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: darken(category.color, 0.5)
+                            color: AppColors.darken(category.color, 0.5)
                           )
                         )
                       ],
