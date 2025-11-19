@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
-import 'package:frontend/data/models/todo_model.dart';
+import 'package:frontend/data/models/task_model.dart';
 import 'package:frontend/theme/app_color.dart';
-import 'package:frontend/viewmodels/todo_cubit.dart';
-import 'package:frontend/viewmodels/todo_state.dart';
+import 'package:frontend/viewmodels/task_cubit.dart';
+import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/components/custom_app_bar.dart';
 import 'package:frontend/views/components/custom_calendar.dart';
 
@@ -39,24 +39,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ),
           const SizedBox(height: 20),
           Expanded(
-            child: BlocBuilder<TodoCubit, TodoState>(
+            child: BlocBuilder<TaskCubit, TaskState>(
               builder: (context, state) {
-                if (state is TodoLoading) {
+                if (state is TaskLoading) {
                   return const Center(child: CircularProgressIndicator());
-                } else if (state is TodoLoaded || state is TodoActionSuccess) {
-                  final todos = (state is TodoLoaded)
-                      ? state.todos
-                      : (state as TodoActionSuccess).todos;
+                } else if (state is TaskLoaded || state is TaskActionSuccess) {
+                  final Tasks = (state is TaskLoaded)
+                      ? state.Tasks
+                      : (state as TaskActionSuccess).Tasks;
 
-                  final todayTodos = todos.where((todo) {
-                    final d = todo.date;
-                    return !todo.isDone &&
+                  final todayTasks = Tasks.where((Task) {
+                    final d = Task.date;
+                    return !Task.isDone &&
                         d.year == _selectedDay.year &&
                         d.month == _selectedDay.month &&
                         d.day == _selectedDay.day;
                   }).toList();
 
-                  final completedTodos = todos.where((todo) => todo.isDone).toList();
+                  final completedTasks = Tasks.where((Task) => Task.isDone).toList();
                   return Column(
                     children: [
                       Container(
@@ -100,13 +100,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       SingleChildScrollView(
                         child: Column(
                           children: _showToday 
-                            ? todayTodos.map((todo) => Container(
+                            ? todayTasks.map((Task) => Container(
                                 margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTodoItem(context, todo),
+                                child: _buildTaskItem(context, Task),
                             )).toList()
-                            : completedTodos.map((todo) => Container(
+                            : completedTasks.map((Task) => Container(
                               margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTodoItem(context, todo)
+                                child: _buildTaskItem(context, Task)
                             )).toList()
                         ),
                       ),
@@ -143,8 +143,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildTodoItem(BuildContext context, TodoModel todo) {
-    final category = defaultCategories.firstWhere((cat) => cat.label == todo.category);
+  Widget _buildTaskItem(BuildContext context, TaskModel Task) {
+    final category = defaultCategories.firstWhere((cat) => cat.label == Task.category);
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -155,7 +155,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: ListTile(
           leading: Icon(Icons.circle_outlined),
           title: Text(
-            todo.title,
+            Task.title,
             style: Theme.of(context).textTheme.bodyLarge,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -164,7 +164,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Today At ${todo.date.hour}:${todo.date.minute}',
+                'Today At ${Task.date.hour}:${Task.date.minute}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
               ),
               Row(
@@ -195,7 +195,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     )
                   ),
                   const SizedBox(width: 12),
-                  todo.priority != null
+                  Task.priority != null
                     ? Container(
                       margin: EdgeInsets.only(top: 6),
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -208,7 +208,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
                             const SizedBox(width: 5),
                             Text(
-                              todo.priority.toString(),
+                              Task.priority.toString(),
                               style: Theme.of(context).textTheme.labelMedium,
                             )
                           ],

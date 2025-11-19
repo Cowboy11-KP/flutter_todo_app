@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/data/local/hive_service.dart';
 // import 'package:frontend/data/remote/firebase_service.dart';
-import 'package:frontend/repository/todo_repository.dart';
+import 'package:frontend/repository/task/task_repository.dart';
 import 'package:frontend/service/firebase_options.dart';
 import 'package:frontend/viewmodels/auth_cubit.dart';
 import 'package:frontend/data/remote/auth_service.dart';
-import 'package:frontend/viewmodels/todo_cubit.dart';
+import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/views/onboarding/onboarding_screen.dart';
 import 'package:frontend/theme/app_theme.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -20,13 +20,13 @@ Future<void> main() async {
   );
 
   await Hive.initFlutter();
-  await LocalTodoService.initHive();
+  await LocalTaskService.initHive();
 
-  final localService = LocalTodoService();
+  final localService = LocalTaskService();
   //final remoteService = FirebaseTodoService();
   final authService = AuthService();
 
-  final todoRepository = TodoRepository(
+  final todoRepository = TaskRepository(
     local: localService,
   );
 
@@ -34,7 +34,7 @@ Future<void> main() async {
     MultiBlocProvider(
       providers: [
         BlocProvider(create: (_) => AuthCubit(authService)),
-        BlocProvider(create: (_) => TodoCubit(todoRepository)..loadTodos()),
+        BlocProvider(create: (_) => TaskCubit(todoRepository)),
       ],
       child: const MyApp(),
     ),

@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
-import 'package:frontend/data/models/todo_model.dart';
+import 'package:frontend/data/models/task_model.dart';
 import 'package:frontend/theme/app_color.dart';
-import 'package:frontend/viewmodels/todo_cubit.dart';
-import 'package:frontend/viewmodels/todo_state.dart';
+import 'package:frontend/viewmodels/task_cubit.dart';
+import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/home/index/addTask_screen.dart';
 
 class IndexScreen extends StatefulWidget {
@@ -64,28 +64,28 @@ class IndexScreenState extends State<IndexScreen>
 
             // 🔹 Danh sách Task theo nhóm
             Expanded(
-              child: BlocBuilder<TodoCubit, TodoState>(
+              child: BlocBuilder<TaskCubit, TaskState>(
                 builder: (context, state) {
-                  if (state is TodoLoading) {
+                  if (state is TaskLoading) {
                     return const Center(child: CircularProgressIndicator());
-                  } else if (state is TodoLoaded || state is TodoActionSuccess) {
-                    final todos = (state is TodoLoaded)
-                        ? state.todos
-                        : (state as TodoActionSuccess).todos;
+                  } else if (state is TaskLoaded || state is TaskActionSuccess) {
+                    final Tasks = (state is TaskLoaded)
+                        ? state.Tasks
+                        : (state as TaskActionSuccess).Tasks;
 
                     final now = DateTime.now();
 
-                    final todayTodos = todos.where((todo) {
-                      final d = todo.date;
-                      return !todo.isDone &&
+                    final todayTasks = Tasks.where((Task) {
+                      final d = Task.date;
+                      return !Task.isDone &&
                           d.year == now.year &&
                           d.month == now.month &&
                           d.day == now.day;
                     }).toList();
 
-                    final completedTodos =
-                        todos.where((todo) => todo.isDone).toList();
-                    if (todayTodos.isNotEmpty){
+                    final completedTasks =
+                        Tasks.where((Task) => Task.isDone).toList();
+                    if (todayTasks.isNotEmpty){
                       return SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,9 +107,9 @@ class IndexScreenState extends State<IndexScreen>
                                 child: _showToday
                                     ? Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: todayTodos
-                                                .map((todo) =>
-                                                    _buildTodoItem(context, todo))
+                                        children: todayTasks
+                                                .map((Task) =>
+                                                    _buildTaskItem(context, Task))
                                                 .toList(),
                                       )
                                     : const SizedBox.shrink(),
@@ -135,14 +135,14 @@ class IndexScreenState extends State<IndexScreen>
                                 child: _showCompleted
                                     ? Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: completedTodos.isEmpty
+                                        children: completedTasks.isEmpty
                                             ? [
                                                 const SizedBox(height: 8),
                                                 const Text('No completed tasks')
                                               ]
-                                            : completedTodos
-                                                .map((todo) =>
-                                                    _buildTodoItem(context, todo))
+                                            : completedTasks
+                                                .map((Task) =>
+                                                    _buildTaskItem(context, Task))
                                                 .toList(),
                                       )
                                     : const SizedBox.shrink(),
@@ -156,7 +156,6 @@ class IndexScreenState extends State<IndexScreen>
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const SizedBox(height: 200),
                             SvgPicture.asset('assets/empty.svg'),
                             Text(
                               'What do you want to do today?',
@@ -210,8 +209,8 @@ class IndexScreenState extends State<IndexScreen>
     );
   }
 
-  Widget _buildTodoItem(BuildContext context, TodoModel todo) {
-    final category = defaultCategories.firstWhere((cat) => cat.label == todo.category);
+  Widget _buildTaskItem(BuildContext context, TaskModel Task) {
+    final category = defaultCategories.firstWhere((cat) => cat.label == Task.category);
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -222,7 +221,7 @@ class IndexScreenState extends State<IndexScreen>
         child: ListTile(
           leading: Icon(Icons.circle_outlined),
           title: Text(
-            todo.title,
+            Task.title,
             style: Theme.of(context).textTheme.bodyLarge,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -231,7 +230,7 @@ class IndexScreenState extends State<IndexScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Today At ${todo.date.hour}:${todo.date.minute}',
+                'Today At ${Task.date.hour}:${Task.date.minute}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
               ),
               Row(
@@ -262,7 +261,7 @@ class IndexScreenState extends State<IndexScreen>
                     )
                   ),
                   const SizedBox(width: 12),
-                  todo.priority != null
+                  Task.priority != null
                     ? Container(
                       margin: EdgeInsets.only(top: 6),
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -275,7 +274,7 @@ class IndexScreenState extends State<IndexScreen>
                             SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
                             const SizedBox(width: 5),
                             Text(
-                              todo.priority.toString(),
+                              Task.priority.toString(),
                               style: Theme.of(context).textTheme.labelMedium,
                             )
                           ],

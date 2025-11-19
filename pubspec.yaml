@@ -51,6 +51,8 @@ dependencies:
   flutter_date_pickers: ^0.4.3
   flutter_datetime_picker_plus: ^2.2.0
   connectivity_plus: ^7.0.0
+  flutter_local_notifications: ^19.5.0
+  timezone: ^0.10.1
 
 dev_dependencies:
   flutter_test:

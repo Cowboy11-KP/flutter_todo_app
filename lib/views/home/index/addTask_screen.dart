@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend/viewmodels/todo_cubit.dart';
+import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
 import 'package:frontend/views/components/custom_calendar.dart';
 import 'package:frontend/views/components/custom_category.dart';
@@ -16,27 +16,15 @@ class AddTaskSheet extends StatefulWidget {
 }
 
 class AddTaskSheetState extends State<AddTaskSheet> {
+  
+  final _formKey = GlobalKey<FormState>();
+  int _stepIndex = 0;
+
   final _taskController = TextEditingController();
   final _desController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-
   DateTime? selectedDateTime; 
   String? selectedCategory;
   int? taskPriority;
-
-  int _stepIndex = 0;
-
-  Future<void> showChooseDay (){
-    return showDialog(
-      context: context, 
-      builder: (context) {
-        return Dialog(
-          insetPadding: const EdgeInsets.all(24),
-          child: CustomCalendar.gridView(),
-        );
-      },
-    );
-  }
 
   Future<void> showChooseDayAndTime() async {
     final selectedDate = await showDialog<DateTime>(
@@ -116,7 +104,7 @@ class AddTaskSheetState extends State<AddTaskSheet> {
     } if (_stepIndex == 2) {
       await showTaskPriority();
 
-      context.read<TodoCubit>().addTodo( 
+      context.read<TaskCubit>().addTask( 
         title: _taskController.text,
         description: _desController.text,
         date: selectedDateTime,

@@ -1,10 +1,10 @@
 // lib/data/local/models/todo_model.dart
 import 'package:hive/hive.dart';
-part 'todo_model.g.dart';
+part 'task_model.g.dart';
 
 @HiveType(typeId: 2) // chọn typeId khác với UserModel
 @HiveType(typeId: 2)
-class TodoModel extends HiveObject {
+class TaskModel extends HiveObject {
   @HiveField(0)
   final String id;
 
@@ -26,7 +26,7 @@ class TodoModel extends HiveObject {
   @HiveField(6)
   final bool isDone;
 
-  TodoModel({
+  TaskModel({
     required this.id,
     required this.title,
     this.description = '',
@@ -46,7 +46,7 @@ class TodoModel extends HiveObject {
     'isDone': isDone,
   };
 
-  factory TodoModel.fromJson(Map<String, dynamic> json) => TodoModel(
+  factory TaskModel.fromJson(Map<String, dynamic> json) => TaskModel(
     id: json['id'] ?? '',
     title: json['title'] ?? '',
     description: json['description'] ?? '',
