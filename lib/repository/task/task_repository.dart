@@ -6,14 +6,14 @@ class TaskRepository {
 
   TaskRepository({required this.local});
 
-  Future<void> addTask(TaskModel Task) async {
-    await local.addTask(Task);
+  Future<void> addTask(TaskModel task) async {
+    await local.addTask(task);
   }
 
   List<TaskModel> getLocalTasks() => local.getTasks();
 
-  Future<void> updateTask(TaskModel Task) async {
-    await local.updateTask(Task);
+  Future<void> updateTask(TaskModel task) async {
+    await local.updateTask(task);
   }
 
   Future<void> deleteTask(String id) async {

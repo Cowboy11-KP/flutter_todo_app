@@ -53,6 +53,7 @@ dependencies:
   connectivity_plus: ^7.0.0
   flutter_local_notifications: ^19.5.0
   timezone: ^0.10.1
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

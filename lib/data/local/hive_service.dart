@@ -5,34 +5,28 @@ import 'package:frontend/data/models/task_model.dart';
 class LocalTaskService {
   static const String boxName = 'Tasks';
 
-  static Future<void> initHive() async {
-    await Hive.initFlutter();
-    Hive.registerAdapter(TaskModelAdapter());
-    await Hive.openBox<TaskModel>(boxName);
-  }
-
   Box<TaskModel> get _box => Hive.box<TaskModel>(boxName);
 
   List<TaskModel> getTasks() => _box.values.toList();
 
-  Future<void> addTask(TaskModel Task) async => await _box.put(Task.id, Task);
+  Future<void> addTask(TaskModel task) async => _box.put(task.id, task);
 
-  Future<void> updateTask(TaskModel Task) async => await _box.put(Task.id, Task);
+  Future<void> updateTask(TaskModel task) async => _box.put(task.id, task);
 
-  Future<void> deleteTask(String id) async => await _box.delete(id);
+  Future<void> deleteTask(String id) async => _box.delete(id);
 }
 
 class LocalCategoryService {
-  final Box<CategoryModel> _box = Hive.box<CategoryModel>('categories');
+  Box<CategoryModel> get _box => Hive.box<CategoryModel>('categories');
 
   List<CategoryModel> getAll() => _box.values.toList();
 
   Future<void> add(CategoryModel category) async {
-    await _box.put(category.label, category); // dùng label làm key
+    await _box.put(category.label, category);
   }
 
   Future<void> delete(String label) async {
     await _box.delete(label);
   }
-
 }
+

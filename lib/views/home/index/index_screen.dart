@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
+import 'package:frontend/data/models/category_model.dart';
 import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/service/notification_service.dart';
 import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
@@ -37,6 +39,7 @@ class IndexScreenState extends State<IndexScreen>
   @override
   void initState() {
     super.initState();
+    context.read<TaskCubit>().loadTodos();
     widget.onAddPressed?.call();
   }
 
@@ -69,23 +72,23 @@ class IndexScreenState extends State<IndexScreen>
                   if (state is TaskLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state is TaskLoaded || state is TaskActionSuccess) {
-                    final Tasks = (state is TaskLoaded)
-                        ? state.Tasks
-                        : (state as TaskActionSuccess).Tasks;
+                    final tasks = (state is TaskLoaded)
+                        ? state.tasks
+                        : (state as TaskActionSuccess).tasks;
 
                     final now = DateTime.now();
 
-                    final todayTasks = Tasks.where((Task) {
-                      final d = Task.date;
-                      return !Task.isDone &&
+                    final todayTasks = tasks.where((task) {
+                      final d = task.date;
+                      return !task.isDone &&
                           d.year == now.year &&
                           d.month == now.month &&
                           d.day == now.day;
                     }).toList();
 
                     final completedTasks =
-                        Tasks.where((Task) => Task.isDone).toList();
-                    if (todayTasks.isNotEmpty){
+                        tasks.where((task) => task.isDone).toList();
+                    if (todayTasks.isNotEmpty ){
                       return SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -108,8 +111,8 @@ class IndexScreenState extends State<IndexScreen>
                                     ? Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: todayTasks
-                                                .map((Task) =>
-                                                    _buildTaskItem(context, Task))
+                                                .map((task) =>
+                                                    _buildTaskItem(context, task))
                                                 .toList(),
                                       )
                                     : const SizedBox.shrink(),
@@ -141,8 +144,8 @@ class IndexScreenState extends State<IndexScreen>
                                                 const Text('No completed tasks')
                                               ]
                                             : completedTasks
-                                                .map((Task) =>
-                                                    _buildTaskItem(context, Task))
+                                                .map((task) =>
+                                                    _buildTaskItem(context, task))
                                                 .toList(),
                                       )
                                     : const SizedBox.shrink(),
@@ -175,6 +178,23 @@ class IndexScreenState extends State<IndexScreen>
                 },
               ),
             ),
+            Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            try {
+              await NotificationService.showInstantNotification(
+                title: 'Test Notification',
+                body: 'This is a test notification',
+              );
+              debugPrint('✅ Notification sent successfully');
+            } catch (e, st) {
+              debugPrint('❌ Failed to show notification: $e');
+              debugPrintStack(stackTrace: st);
+            }
+          },
+          child: const Text('Show Notification Now'),
+        ),
+      ),
           ],
         ),
       ),
@@ -209,8 +229,17 @@ class IndexScreenState extends State<IndexScreen>
     );
   }
 
-  Widget _buildTaskItem(BuildContext context, TaskModel Task) {
-    final category = defaultCategories.firstWhere((cat) => cat.label == Task.category);
+  Widget _buildTaskItem(BuildContext context, TaskModel task) {
+    CategoryModel? category;
+
+    try {
+      category = defaultCategories.firstWhere(
+        (cat) => cat.label == task.category,
+      );
+    } catch (_) {
+      category = null;
+    }
+
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -221,7 +250,7 @@ class IndexScreenState extends State<IndexScreen>
         child: ListTile(
           leading: Icon(Icons.circle_outlined),
           title: Text(
-            Task.title,
+            task.title,
             style: Theme.of(context).textTheme.bodyLarge,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -230,38 +259,40 @@ class IndexScreenState extends State<IndexScreen>
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Today At ${Task.date.hour}:${Task.date.minute}',
+                'Today At ${task.date.hour.toString().padLeft(2, '0')}:${task.date.minute.toString().padLeft(2, '0')}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
               ),
               Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 6),
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: category.color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(
-                          category.svgPath,
-                          height: 14,
-                          width: 14,
-                          colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          category.label,
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: AppColors.darken(category.color, 0.5)
+                  category != null
+                    ? Container(
+                      margin: EdgeInsets.only(top: 6),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: category.color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            category.svgPath,
+                            height: 14,
+                            width: 14,
+                            colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            category.label,
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: AppColors.darken(category.color, 0.5)
+                            )
                           )
-                        )
-                      ],
+                        ],
+                      )
                     )
-                  ),
+                    : Container(),
                   const SizedBox(width: 12),
-                  Task.priority != null
+                  task.priority != null
                     ? Container(
                       margin: EdgeInsets.only(top: 6),
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -274,7 +305,7 @@ class IndexScreenState extends State<IndexScreen>
                             SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
                             const SizedBox(width: 5),
                             Text(
-                              Task.priority.toString(),
+                              task.priority.toString(),
                               style: Theme.of(context).textTheme.labelMedium,
                             )
                           ],

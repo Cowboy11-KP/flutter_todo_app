@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:frontend/views/components/primary_button.dart';
 
 class TimePickerScreen extends StatefulWidget {
@@ -12,21 +13,31 @@ class TimePickerScreen extends StatefulWidget {
 
 class _TimePickerScreenState extends State<TimePickerScreen> {
 
+  bool is24HourFormat(BuildContext context) {
+    final now = DateTime.now();
+    final format = DateFormat.jm().format(now); // '5:08 PM' hay '17:08'
+    return !format.contains(RegExp(r'[APap][Mm]'));
+  }
+
   late int selectedHour;
   late int selectedMinute;
   late bool isAM;
+  late bool use24Hour;
 
   @override
   void initState() {
     super.initState();
+    use24Hour = is24HourFormat(context);
     final now = DateTime.now();
 
-    // Giờ dạng 12h
-    selectedHour = now.hour % 12;
-    if (selectedHour == 0) selectedHour = 12;
-
+    if (use24Hour) {
+      selectedHour = now.hour; // 0-23
+    } else {
+      selectedHour = now.hour % 12;
+      if (selectedHour == 0) selectedHour = 12;
+      isAM = now.hour < 12;
+    }
     selectedMinute = now.minute;
-    isAM = now.hour < 12;
   }
 
   @override
@@ -121,9 +132,14 @@ class _TimePickerScreenState extends State<TimePickerScreen> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  int hour24 = selectedHour % 12;
-                  if (!isAM) hour24 += 12;
-                  
+                  int hour24;
+
+                  if (use24Hour) {
+                    hour24 = selectedHour;
+                  } else {
+                    hour24 = selectedHour % 12;
+                    if (!isAM) hour24 += 12;
+                  }
                   final fullDateTime = DateTime(
                     widget.initialDate.year,
                     widget.initialDate.month,
@@ -131,7 +147,6 @@ class _TimePickerScreenState extends State<TimePickerScreen> {
                     hour24,
                     selectedMinute,
                   );
-
                   Navigator.pop(context, fullDateTime);
                 },
                 text: 'Save',

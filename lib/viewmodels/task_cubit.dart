@@ -10,6 +10,17 @@ class TaskCubit extends Cubit<TaskState> {
 
   TaskCubit(this.repository) : super(TaskInitial());
 
+  /// Load dữ liệu từ local + sync Firebase
+  Future<void> loadTodos() async {
+    emit(TaskLoading());
+    try {
+      final localTasks = repository.getLocalTasks();
+      emit(TaskLoaded(localTasks));
+    } catch (e) {
+      emit(TaskError('Không thể tải dữ liệu: $e'));
+    }
+  }
+  
   /// add task
   Future<void> addTask({
   required String title,
@@ -33,9 +44,9 @@ class TaskCubit extends Cubit<TaskState> {
     final tasks = repository.getLocalTasks();
 
     await NotificationService.scheduleNotification(
-      id: DateTime.now().millisecondsSinceEpoch,
-      title: title,
-      body: "Đến giờ: ${title}",
+      id: task.id.hashCode & 0x7FFFFFFF,
+      title: task.title,
+      body: "Đến giờ: ${task.title}",
       scheduledTime: date ?? DateTime.now()
     );
 
@@ -75,14 +86,14 @@ class TaskCubit extends Cubit<TaskState> {
       await NotificationService.cancel(task.id.hashCode);
 
       await NotificationService.scheduleNotification(
-        id: task.id.hashCode,
+        id: task.id.hashCode & 0x7FFFFFFF,
         title: task.title,
         body: "Đến giờ: ${task.title}",
         scheduledTime: task.date,
       );
 
-      final Tasks = repository.getLocalTasks();
-      emit(TaskLoaded(Tasks));
+      final tasks = repository.getLocalTasks();
+      emit(TaskLoaded(tasks));
     } catch (e) {
       emit(TaskError('Không thể cập nhật: $e'));
     }
@@ -92,8 +103,8 @@ class TaskCubit extends Cubit<TaskState> {
   Future<void> deleteTask(String id) async {
     try {
       await repository.deleteTask(id);
-      final Tasks = repository.getLocalTasks();
-      emit(TaskActionSuccess(Tasks, 'Đã xóa task thành công!'));
+      final tasks = repository.getLocalTasks();
+      emit(TaskActionSuccess(tasks, 'Đã xóa task thành công!'));
     } catch (e) {
       emit(TaskError('Xóa thất bại: $e'));
     }

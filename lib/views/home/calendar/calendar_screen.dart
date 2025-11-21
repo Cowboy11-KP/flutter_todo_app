@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
+import 'package:frontend/data/models/category_model.dart';
 import 'package:frontend/data/models/task_model.dart';
 import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
@@ -44,19 +45,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 if (state is TaskLoading) {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is TaskLoaded || state is TaskActionSuccess) {
-                  final Tasks = (state is TaskLoaded)
-                      ? state.Tasks
-                      : (state as TaskActionSuccess).Tasks;
+                  final tasks = (state is TaskLoaded)
+                      ? state.tasks
+                      : (state as TaskActionSuccess).tasks;
 
-                  final todayTasks = Tasks.where((Task) {
-                    final d = Task.date;
-                    return !Task.isDone &&
+                  final todayTasks = tasks.where((task) {
+                    final d = task.date;
+                    return !task.isDone &&
                         d.year == _selectedDay.year &&
                         d.month == _selectedDay.month &&
                         d.day == _selectedDay.day;
                   }).toList();
 
-                  final completedTasks = Tasks.where((Task) => Task.isDone).toList();
+                  final completedTasks = tasks.where((task) => task.isDone).toList();
                   return Column(
                     children: [
                       Container(
@@ -100,13 +101,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       SingleChildScrollView(
                         child: Column(
                           children: _showToday 
-                            ? todayTasks.map((Task) => Container(
+                            ? todayTasks.map((task) => Container(
                                 margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTaskItem(context, Task),
+                                child: _buildTaskItem(context, task),
                             )).toList()
-                            : completedTasks.map((Task) => Container(
+                            : completedTasks.map((task) => Container(
                               margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTaskItem(context, Task)
+                                child: _buildTaskItem(context, task)
                             )).toList()
                         ),
                       ),
@@ -143,8 +144,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  Widget _buildTaskItem(BuildContext context, TaskModel Task) {
-    final category = defaultCategories.firstWhere((cat) => cat.label == Task.category);
+  Widget _buildTaskItem(BuildContext context, TaskModel task) {
+    CategoryModel? category;
+
+    try {
+      category = defaultCategories.firstWhere(
+        (cat) => cat.label == task.category,
+      );
+    } catch (_) {
+      category = null;
+    }
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -155,7 +164,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         child: ListTile(
           leading: Icon(Icons.circle_outlined),
           title: Text(
-            Task.title,
+            task.title,
             style: Theme.of(context).textTheme.bodyLarge,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
@@ -164,38 +173,40 @@ class _CalendarScreenState extends State<CalendarScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Today At ${Task.date.hour}:${Task.date.minute}',
+                'Today At ${task.date.hour}:${task.date.minute}',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
               ),
               Row(
                 children: [
-                  Container(
-                    margin: EdgeInsets.only(top: 6),
-                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: category.color,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Row(
-                      children: [
-                        SvgPicture.asset(
-                          category.svgPath,
-                          height: 14,
-                          width: 14,
-                          colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          category.label,
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: AppColors.darken(category.color, 0.5)
+                  category != null
+                    ? Container(
+                      margin: EdgeInsets.only(top: 6),
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: category.color,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        children: [
+                          SvgPicture.asset(
+                            category.svgPath,
+                            height: 14,
+                            width: 14,
+                            colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            category.label,
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: AppColors.darken(category.color, 0.5)
+                            )
                           )
-                        )
-                      ],
+                        ],
+                      )
                     )
-                  ),
+                    : Container(),
                   const SizedBox(width: 12),
-                  Task.priority != null
+                  task.priority != null
                     ? Container(
                       margin: EdgeInsets.only(top: 6),
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
@@ -208,7 +219,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
                             const SizedBox(width: 5),
                             Text(
-                              Task.priority.toString(),
+                              task.priority.toString(),
                               style: Theme.of(context).textTheme.labelMedium,
                             )
                           ],
