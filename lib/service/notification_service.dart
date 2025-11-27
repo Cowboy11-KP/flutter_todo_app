@@ -1,7 +1,41 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:frontend/data/local/hive_service.dart';
+import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/repository/task/task_repository.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter/foundation.dart';
+
+// Hàm này chạy độc lập khi App đang đóng hoặc chạy ngầm
+@pragma('vm:entry-point')
+void notificationTapBackground(NotificationResponse notificationResponse) async {
+
+  if (notificationResponse.actionId == 'mark_done') {
+
+    final String? taskId = notificationResponse.payload;
+    if (taskId != null) {
+      try {
+        // khởi tạo hive cho background
+        await Hive.initFlutter();
+
+        if (!Hive.isAdapterRegistered(0)) { 
+          Hive.registerAdapter(TaskModelAdapter()); 
+        }
+
+        final localService = LocalTaskService(); 
+        final repository = TaskRepository(local: localService);
+
+        await repository.updateIsDone(taskId);
+
+        print('✅ Background: Đã update xong task $taskId');
+
+      } catch (e){
+        print('❌ Background Error: $e');
+      }
+    }
+  }
+}
 
 class NotificationService {
   static final _notifications = FlutterLocalNotificationsPlugin();
@@ -15,11 +49,12 @@ class NotificationService {
 
       // Android settings
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
+
       // iOS settings
       const ios = DarwinInitializationSettings(
-        requestSoundPermission: true,
-        requestBadgePermission: true,
-        requestAlertPermission: true,
+        requestSoundPermission: false,
+        requestBadgePermission: false,
+        requestAlertPermission: false,
       );
 
       const settings = InitializationSettings(android: android, iOS: ios);
@@ -31,13 +66,28 @@ class NotificationService {
             print('Notification clicked: $payload');
           }
         },
+        onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
       );
-
+      
       // iOS xin quyền
-      await _notifications
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(alert: true, badge: true, sound: true);
+      final iosImplementation = _notifications.resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>();
+      if (iosImplementation != null) {
+        await iosImplementation.requestPermissions(
+          alert: true, 
+          badge: true, 
+          sound: true,
+        );
+      }
+
+      // Android xin quyền 
+      final AndroidFlutterLocalNotificationsPlugin? androidImplementation =
+          _notifications.resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin>();
+      if (androidImplementation != null) {
+        await androidImplementation.requestNotificationsPermission();
+        await androidImplementation.requestExactAlarmsPermission();
+      }
 
       debugPrint('✅ NotificationService initialized');
     } catch (e) {
@@ -49,6 +99,7 @@ class NotificationService {
   static Future<void> showInstantNotification({
     required String title,
     required String body,
+    
   }) async {
     try {
       const androidDetails = AndroidNotificationDetails(
@@ -58,6 +109,21 @@ class NotificationService {
         priority: Priority.high,
         playSound: true,
         ticker: 'ticker',
+        //action button
+        actions: <AndroidNotificationAction>[
+          AndroidNotificationAction(
+            'mark_done',
+            'Done',
+            showsUserInterface: false,
+            cancelNotification: true,
+          ),
+          AndroidNotificationAction(
+            'Snooze',
+            'Snooze',
+            showsUserInterface: false,
+            cancelNotification: true,
+          ),
+        ],
       );
 
       const iosDetails = DarwinNotificationDetails();
@@ -72,13 +138,28 @@ class NotificationService {
 
   /// Lên lịch notification
   static Future<void> scheduleNotification({
+    
     required int id,
     required String title,
     required String body,
     required DateTime scheduledTime,
+    required String taskId
   }) async {
     try {
-      final tzTime = tz.TZDateTime.from(scheduledTime, tz.local);
+      final tzTime = tz.TZDateTime(
+        tz.local,
+        scheduledTime.year,
+        scheduledTime.month,
+        scheduledTime.day,
+        scheduledTime.hour,
+        scheduledTime.minute,
+      );
+
+      debugPrint('Gốc: $scheduledTime');
+      debugPrint('Sau khi ép Timezone: $tzTime');
+
+      debugPrint('🕒 Giờ hiện tại của App (Timezone): $tzTime');
+      debugPrint('🎯 Giờ bạn muốn hẹn: $scheduledTime');
 
       if (tzTime.isBefore(tz.TZDateTime.now(tz.local))) {
         debugPrint('❌ Cannot schedule notification in the past: $scheduledTime');
@@ -92,6 +173,21 @@ class NotificationService {
         priority: Priority.high,
         playSound: true,
         ticker: 'ticker',
+        //action button
+        actions: <AndroidNotificationAction>[
+          const AndroidNotificationAction(
+            'mark_done',
+            'Done',
+            showsUserInterface: false,
+            cancelNotification: true,
+          ),
+          const AndroidNotificationAction(
+            'Snooze',
+            'Done',
+            showsUserInterface: false,
+            cancelNotification: true,
+          ),
+        ],
       );
 
       final iosDetails = DarwinNotificationDetails();
@@ -103,8 +199,8 @@ class NotificationService {
         body,
         tzTime,
         details,
-        androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-        payload: 'todo_payload',
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        payload: taskId,
       );
 
       debugPrint('✅ Scheduled notification: $title at $scheduledTime');

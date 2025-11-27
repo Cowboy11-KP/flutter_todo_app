@@ -10,6 +10,10 @@ class TaskCubit extends Cubit<TaskState> {
 
   TaskCubit(this.repository) : super(TaskInitial());
 
+  int _getNotificationId(String taskId) {
+    return taskId.hashCode & 0x7FFFFFFF;
+  }
+  
   /// Load dữ liệu từ local + sync Firebase
   Future<void> loadTodos() async {
     emit(TaskLoading());
@@ -23,50 +27,52 @@ class TaskCubit extends Cubit<TaskState> {
   
   /// add task
   Future<void> addTask({
-  required String title,
-  String description = '',
-  DateTime? date,
-  String? category,
-  int? priority,
-}) async {
-  try {
-    final task = TaskModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: title,
-      description: description,
-      date: date ?? DateTime.now(),
-      category: category,
-      priority: priority,
-      isDone: false,
-    );
+    required String title,
+    String description = '',
+    DateTime? date,
+    String? category,
+    int? priority,
+  }) async {
+    try {
+      final task = TaskModel(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        title: title,
+        description: description,
+        date: date ?? DateTime.now(),
+        category: category,
+        priority: priority,
+        isDone: false,
+      );
 
-    await repository.addTask(task);
-    final tasks = repository.getLocalTasks();
+      await repository.addTask(task);
+      final tasks = repository.getLocalTasks();
 
-    await NotificationService.scheduleNotification(
-      id: task.id.hashCode & 0x7FFFFFFF,
-      title: task.title,
-      body: "Đến giờ: ${task.title}",
-      scheduledTime: date ?? DateTime.now()
-    );
+      if (task.date.isAfter(DateTime.now())) {
+          await NotificationService.scheduleNotification(
+            id: _getNotificationId(task.id), // SỬA: Dùng hàm helper
+            title: task.title,
+            body: "Đến giờ: ${task.title}",
+            scheduledTime: task.date,
+            taskId: task.id, // SỬA: Thêm taskId để Action Button hoạt động
+          );
+        }
 
-    // ✅ In ra log chi tiết
-    debugPrint("✅ Đã thêm task mới:");
-    debugPrint("   🏷️  Title: ${task.title}");
-    debugPrint("   📝  Description: ${task.description}");
-    debugPrint("   📅  Date: ${task.date}");
-    debugPrint("   📂  Category: ${task.category}");
-    debugPrint("   ⭐  Priority: ${task.priority}");
-    debugPrint("   🆔  ID: ${task.id}");
-    debugPrint("   Tổng số task hiện tại: ${tasks.length}");
+      // ✅ In ra log chi tiết
+      debugPrint("✅ Đã thêm task mới:");
+      debugPrint("   🏷️  Title: ${task.title}");
+      debugPrint("   📝  Description: ${task.description}");
+      debugPrint("   📅  Date: ${task.date}");
+      debugPrint("   📂  Category: ${task.category}");
+      debugPrint("   ⭐  Priority: ${task.priority}");
+      debugPrint("   🆔  ID: ${task.id}");
+      debugPrint("   Tổng số task hiện tại: ${tasks.length}");
 
-    emit(TaskActionSuccess(tasks, 'Đã thêm task thành công!'));
-  } catch (e) {
-    debugPrint("❌ Lỗi khi thêm task: $e");
-    emit(TaskError('Thêm thất bại: $e'));
+      emit(TaskActionSuccess(tasks, 'Đã thêm task thành công!'));
+    } catch (e) {
+      debugPrint("❌ Lỗi khi thêm task: $e");
+      emit(TaskError('Thêm thất bại: $e'));
+    }
   }
-}
-
 
   /// update task
   Future<void> updateTask(TaskModel task) async {
@@ -83,14 +89,17 @@ class TaskCubit extends Cubit<TaskState> {
 
       await repository.updateTask(updated);
       
-      await NotificationService.cancel(task.id.hashCode);
+      await NotificationService.cancel(_getNotificationId(task.id));
 
-      await NotificationService.scheduleNotification(
-        id: task.id.hashCode & 0x7FFFFFFF,
-        title: task.title,
-        body: "Đến giờ: ${task.title}",
-        scheduledTime: task.date,
-      );
+      if (!task.isDone && task.date.isAfter(DateTime.now())) {
+        await NotificationService.scheduleNotification(
+          id: _getNotificationId(task.id),
+          title: task.title,
+          body: "Đến giờ: ${task.title}",
+          scheduledTime: task.date,
+          taskId: task.id, // SỬA: Thêm taskId
+        );
+      }
 
       final tasks = repository.getLocalTasks();
       emit(TaskLoaded(tasks));
@@ -103,6 +112,9 @@ class TaskCubit extends Cubit<TaskState> {
   Future<void> deleteTask(String id) async {
     try {
       await repository.deleteTask(id);
+
+      await NotificationService.cancel(_getNotificationId(id));
+
       final tasks = repository.getLocalTasks();
       emit(TaskActionSuccess(tasks, 'Đã xóa task thành công!'));
     } catch (e) {
