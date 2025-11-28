@@ -24,7 +24,6 @@ class TaskRepository {
     final tasks = local.getTasks();
     final task = tasks.firstWhere((e) => e.id == id);
 
-    // CopyWith (nếu model có) hoặc tạo mới như này
     final updatedTask = TaskModel(
       id: task.id,
       title: task.title,
@@ -32,7 +31,7 @@ class TaskRepository {
       date: task.date,
       category: task.category,
       priority: task.priority,
-      isDone: true, // Quan trọng nhất là dòng này
+      isDone: true, 
     );
 
     await local.updateTask(updatedTask);

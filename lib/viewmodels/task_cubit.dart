@@ -108,6 +108,31 @@ class TaskCubit extends Cubit<TaskState> {
     }
   }
 
+  Future<void> markDoneFromNotification(String id) async {
+    if (state is TaskLoaded) {
+      final currentTasks = (state as TaskLoaded).tasks;
+      final newTasks = currentTasks.map((t) {
+        if (t.id == id) {
+            return TaskModel(
+            id: t.id,
+            title: t.title,
+            description: t.description,
+            date: t.date,
+            category: t.category,
+            priority: t.priority,
+            isDone: true,
+          );
+        }
+        return t;
+      }).toList();
+      
+      emit(TaskLoaded(newTasks));
+    }
+
+    await repository.updateIsDone(id);
+    
+  }
+
   /// delete Task
   Future<void> deleteTask(String id) async {
     try {
