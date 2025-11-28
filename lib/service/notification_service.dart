@@ -158,7 +158,8 @@ class NotificationService {
       debugPrint('Gốc: $scheduledTime');
       debugPrint('Sau khi ép Timezone: $tzTime');
 
-      debugPrint('🕒 Giờ hiện tại của App (Timezone): $tzTime');
+      final now = tz.TZDateTime.now(tz.local);
+      debugPrint('🕒 Giờ hiện tại của App (Timezone): $now');
       debugPrint('🎯 Giờ bạn muốn hẹn: $scheduledTime');
 
       if (tzTime.isBefore(tz.TZDateTime.now(tz.local))) {
