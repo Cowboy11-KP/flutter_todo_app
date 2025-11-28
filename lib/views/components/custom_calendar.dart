@@ -49,6 +49,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
   late DateTime _currentMonth;
   late DateTime _selectedDate;
   final ScrollController _scrollController = ScrollController();
+
   @override
   void initState() {
     super.initState();
@@ -60,11 +61,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
   List<DateTime> _generateDaysInMonth(DateTime month) {
     final firstDayOfMonth = DateTime(month.year, month.month, 1);
     final lastDayOfMonth = DateTime(month.year, month.month + 1, 0);
-    final firstDayToDisplay =
-        firstDayOfMonth.subtract(Duration(days: firstDayOfMonth.weekday % 7));
-    final lastDayToDisplay =
-        lastDayOfMonth.add(Duration(days: 6 - (lastDayOfMonth.weekday % 7)));
-
+    final firstDayToDisplay = firstDayOfMonth.subtract(Duration(days: firstDayOfMonth.weekday % 7));
+    final lastDayToDisplay = lastDayOfMonth.add(Duration(days: 6 - (lastDayOfMonth.weekday % 7)));
     return List.generate(
       lastDayToDisplay.difference(firstDayToDisplay).inDays + 1,
       (i) => DateTime(firstDayToDisplay.year, firstDayToDisplay.month,
@@ -72,10 +70,48 @@ class _CustomCalendarState extends State<CustomCalendar> {
     );
   }
 
+  List<DateTime> _generateOnlyDaysInMonth(DateTime month) {
+    final lastDayOfMonth = DateTime(month.year, month.month + 1, 0);
+    return List.generate(
+      lastDayOfMonth.day,
+      (i) => DateTime(month.year, month.month, i + 1),
+    );
+  }
+
+  void _scrollForMonthView() {
+    if (!widget.isListView || !_scrollController.hasClients) return;
+
+    final now = DateTime.now();
+    final isRealCurrentMonth =
+        _currentMonth.year == now.year && _currentMonth.month == now.month;
+
+    // Logic mới: Vì list không có padding, ta tính toán index trực tiếp
+    int targetDay; 
+    
+    if (isRealCurrentMonth) {
+      targetDay = now.day; // Nếu tháng hiện tại -> cuộn tới hôm nay
+    } else {
+      targetDay = 1; // Nếu tháng khác -> cuộn tới mùng 1
+    }
+
+    // Index bắt đầu từ 0 nên phải trừ 1
+    final index = targetDay - 1; 
+
+    // Tính toán offset (50.0 là width item + margin)
+    final targetOffset = (index * 50.0) - (MediaQuery.of(context).size.width / 2) + 25;
+      
+    _scrollController.animateTo(
+      targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
   void _changeMonth(int offset) {
     setState(() {
       _currentMonth = DateTime(_currentMonth.year, _currentMonth.month + offset);
     });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollForMonthView());
   }
 
    void _onSelectDay(DateTime day) {
@@ -99,7 +135,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    final days = _generateDaysInMonth(_currentMonth);
+    final days = widget.isListView
+      ? _generateOnlyDaysInMonth(_currentMonth)
+      : _generateDaysInMonth(_currentMonth);
+
     final monthName = DateFormat('MMMM').format(_currentMonth);
     final today = DateTime.now();
 
@@ -160,6 +199,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
     return SizedBox(
       height: 55,
       child: ListView.builder( 
+        controller: _scrollController,
         scrollDirection: Axis.horizontal,
         itemCount: days.length,
         itemBuilder: (context, index) {
@@ -173,7 +213,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
           final weekday = DateFormat('EEE').format(day).toUpperCase();
 
           return GestureDetector(
-            onTap: (isCurrentMonth && !isPastDay)
+            onTap: isCurrentMonth
                 ? () => _onSelectDay(day)
                 : null,
             child: Container(
@@ -182,7 +222,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
               decoration: BoxDecoration(
                 color: isSelected
                     ? Colors.deepPurpleAccent
-                    : (isCurrentMonth && !isPastDay)
+                    : isCurrentMonth
                         ? const Color(0xFF3A3A3A)
                         : Colors.transparent,
                 borderRadius: BorderRadius.circular(4),

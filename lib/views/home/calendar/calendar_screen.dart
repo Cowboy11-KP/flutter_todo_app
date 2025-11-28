@@ -98,19 +98,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      SingleChildScrollView(
-                        child: Column(
-                          children: _showToday 
-                            ? todayTasks.map((task) => Container(
-                                margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTaskItem(context, task),
-                            )).toList()
-                            : completedTasks.map((task) => Container(
-                              margin: EdgeInsets.symmetric(horizontal: 24),
-                                child: _buildTaskItem(context, task)
-                            )).toList()
+                      Expanded(
+                        child: SafeArea(
+                          child: SingleChildScrollView(
+                            child: Column(
+                              children: _showToday 
+                                ? todayTasks.map((task) => Container(
+                                    margin: EdgeInsets.symmetric(horizontal: 24),
+                                    child: _buildTaskItem(context, task),
+                                )).toList()
+                                : completedTasks.map((task) => Container(
+                                  margin: EdgeInsets.symmetric(horizontal: 24),
+                                    child: _buildTaskItem(context, task)
+                                )).toList()
+                            ),
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 6)
                     ],
                   );
                 }
