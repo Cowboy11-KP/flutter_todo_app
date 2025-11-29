@@ -69,7 +69,7 @@ class _TaskPriorityState extends State<TaskPriority> {
                     children: [
                       SvgPicture.asset('assets/icons/flag.svg',height: 24,),
                       const SizedBox(height: 5),
-                      Text("${index}",
+                      Text("${index + 1}",
                         style: Theme.of(context).textTheme.bodySmall,
                       )
                     ],
@@ -91,7 +91,8 @@ class _TaskPriorityState extends State<TaskPriority> {
               ),
               PrimaryButton(
                 onPressed: () {
-                  Navigator.pop(context, _taskPriority);
+                  int? result = _taskPriority != null ? _taskPriority! + 1 : null;
+                  Navigator.pop(context, result);
                 },
                 text: 'Choose Time',
               )

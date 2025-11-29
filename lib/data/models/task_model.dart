@@ -12,7 +12,7 @@ class TaskModel extends HiveObject {
   final String title;
 
   @HiveField(2)
-  final String description;
+  final String? description;
 
   @HiveField(3)
   final DateTime date; // ngày (ngày, giờ)
@@ -29,7 +29,7 @@ class TaskModel extends HiveObject {
   TaskModel({
     required this.id,
     required this.title,
-    this.description = '',
+    this.description,
     required this.date,
     this.category ,
     this.priority,
@@ -49,7 +49,7 @@ class TaskModel extends HiveObject {
   factory TaskModel.fromJson(Map<String, dynamic> json) => TaskModel(
     id: json['id'] ?? '',
     title: json['title'] ?? '',
-    description: json['description'] ?? '',
+    description: json['description'],
     date: DateTime.parse(json['date']),
     category: json['category'],
     priority: json['priority'],

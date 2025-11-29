@@ -57,7 +57,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         d.day == _selectedDay.day;
                   }).toList();
 
-                  final completedTasks = tasks.where((task) => task.isDone).toList();
+                  final completedTasks = tasks.where((task) {
+                      final d = task.date;
+                      return task.isDone &&
+                        d.year == _selectedDay.year &&
+                        d.month == _selectedDay.month &&
+                        d.day == _selectedDay.day;
+                  }).toList();
+
                   return Column(
                     children: [
                       Container(

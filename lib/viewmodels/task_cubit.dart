@@ -100,8 +100,17 @@ class TaskCubit extends Cubit<TaskState> {
           taskId: task.id, // SỬA: Thêm taskId
         );
       }
-
+      
       final tasks = repository.getLocalTasks();
+      debugPrint("✅Task update success");
+      debugPrint("   🏷️  Title: ${task.title}");
+      debugPrint("   📝  Description: ${task.description}");
+      debugPrint("   📅  Date: ${task.date}");
+      debugPrint("   📂  Category: ${task.category}");
+      debugPrint("   ⭐  Priority: ${task.priority}");
+      debugPrint("   🆔  ID: ${task.id}");
+      debugPrint("   Tổng số task hiện tại: ${tasks.length}");
+
       emit(TaskLoaded(tasks));
     } catch (e) {
       emit(TaskError('Không thể cập nhật: $e'));

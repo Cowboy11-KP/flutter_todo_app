@@ -9,6 +9,7 @@ import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/home/index/addTask_screen.dart';
+import 'package:frontend/views/home/index/editTask_screen.dart';
 
 class IndexScreen extends StatefulWidget {
   final VoidCallback? onAddPressed;
@@ -86,8 +87,14 @@ class IndexScreenState extends State<IndexScreen>
                           d.day == now.day;
                     }).toList();
 
-                    final completedTasks =
-                        tasks.where((task) => task.isDone).toList();
+                    final completedTasks = tasks.where((task) {
+                      final d = task.date;
+                      return task.isDone &&
+                          d.year == now.year &&
+                          d.month == now.month &&
+                          d.day == now.day;
+                    }).toList();
+
                     if (todayTasks.isNotEmpty ){
                       return SingleChildScrollView(
                         child: Column(
@@ -241,6 +248,12 @@ class IndexScreenState extends State<IndexScreen>
     }
 
     return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context, 
+          MaterialPageRoute(builder: (context) => EditTaskScreen(task: task))
+        );
+      },
       child: Container(
         decoration: BoxDecoration(
           color: const Color(0xFF2E2E2E),
