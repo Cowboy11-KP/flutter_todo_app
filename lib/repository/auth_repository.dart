@@ -1,26 +1,22 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/data/remote/auth_service.dart';
-import 'package:hive/hive.dart';
+import '../service/auth_service.dart';
 
 class AuthRepository {
-  final AuthService _service;
-  final Box _box; // Hive box để lưu user/token
+  final AuthService _authService;
+  AuthRepository(this._authService);
 
-  AuthRepository(this._service, this._box);
-
-  User? get currentUser => _service.currentUser;
-
-  Stream<User?> get userChanges => _service.userChanges;
-
-  Future<void> signInWithGoogle() async {
-    final user = await _service.signInWithGoogle();
-    if (user != null) {
-      _box.put('user', user.uid); // lưu local bằng Hive
-    }
+  Future<User?> signInWithEmail(String email, String password) async {
+    final credential = await _authService.loginWithEmail(email, password);
+    return credential.user;
   }
 
-  Future<void> signOut() async {
-    await _service.signOut();
-    _box.delete('user');
+  Future<User?> signUpWithEmail(String email, String password) async {
+    final credential = await _authService.signUpWithEmail(email, password);
+    return credential.user;
+  }
+  
+  Future<User?> signInWithGoogle() async {
+    final credential = await _authService.loginWithGoogle();
+    return credential?.user;
   }
 }

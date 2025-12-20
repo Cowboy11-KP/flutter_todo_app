@@ -1,5 +1,5 @@
 import 'package:frontend/data/local/hive_service.dart';
-import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/models/task_model.dart';
 
 class TaskRepository {
   final LocalTaskService local;

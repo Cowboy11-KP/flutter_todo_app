@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/models/task_model.dart';
 import 'package:frontend/views/components/Custom_textField.dart';
 import 'package:frontend/views/components/primary_button.dart';
 class CustomEdittitle extends StatefulWidget {

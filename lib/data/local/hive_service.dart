@@ -1,6 +1,6 @@
-import 'package:frontend/data/models/category_model.dart';
+import 'package:frontend/models/category_model.dart';
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/models/task_model.dart';
 
 class LocalTaskService {
   static const String boxName = 'Tasks';

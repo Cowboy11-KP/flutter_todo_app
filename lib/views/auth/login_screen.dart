@@ -18,6 +18,17 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,14 +38,16 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Username",
+                  "Email",
                   style: Theme.of(context).textTheme.bodyLarge
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
-                  hint: "Enter your Username",
+                  controller: _emailController,
+                  hint: "Enter your email",
                 ),
                 const SizedBox(height: 25),
 
@@ -44,20 +57,41 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(height: 8),
                 CustomTextField(
+                  controller: _passwordController,
                   hint: "••••••••••",
                   obscureText: true,
                 ),
                 const SizedBox(height: 70),
-                PrimaryButton(
-                  text: 'Login',
-                  onPressed: () {
-                    Navigator.pushReplacement(
-                      context, 
-                      MaterialPageRoute(builder: (context) => HomeScreen())
-                    );
+                BlocConsumer<AuthCubit, AuthState>(
+                  listener: (context, state) {
+                    if (state is Authenticated) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                      );
+                    } else if (state is AuthError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
                   },
-                  width: double.infinity,
+                  builder: (context, state) {
+                    if (state is AuthLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return PrimaryButton(
+                      text: 'Login',
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context, 
+                          MaterialPageRoute(builder: (context) => HomeScreen())
+                        );
+                      },
+                      width: double.infinity,
+                    );
+                  }
                 ),
+               
                 const SizedBox(height: 45),
                 Row(
                   children: [
@@ -84,12 +118,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 const SizedBox(height: 40,),
                 BlocConsumer<AuthCubit, AuthState>(
                   listener: (context, state) {
-                    if (state is AuthSuccess) {
+                    if (state is Authenticated) {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const HomeScreen()),
                       );
-                    } else if (state is AuthFailure) {
+                    } else if (state is AuthError) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(state.message)),
                       );
@@ -102,12 +136,12 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     return OutlinedButtonCustom(
                       onPressed: () async {
-                        await context.read<AuthCubit>().loginWithGoogle();
+                        await context.read<AuthCubit>().loginGoogle();
                       },
                       icon: Padding(
                         padding: const EdgeInsets.all(1),
                         child: SvgPicture.asset(
-                          'asset/icons/google.svg',
+                          'assets/icons/google.svg',
                           width: 24,
                           height: 24,
                         ),

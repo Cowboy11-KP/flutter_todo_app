@@ -1,25 +1,48 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/remote/auth_service.dart';
-import 'package:frontend/viewmodels/auth_state.dart';
+import '../repository/auth_repository.dart';
+import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
-  final AuthService authService;
+  final AuthRepository _repository;
 
-  AuthCubit(this.authService) : super(AuthInitial());
+  AuthCubit(this._repository) : super(AuthInitial());
 
-  Future<void> loginWithGoogle() async {
+  // Logic Đăng nhập Email
+  Future<void> loginEmail(String email, String password) async {
     emit(AuthLoading());
-    final user = await authService.signInWithGoogle();
-    if (user != null) {
-      emit(AuthSuccess(user));
-      print('Đăng nhập thành công, User ID: ${user.uid}');
-    } else {
-      emit(const AuthFailure("Đăng nhập thất bại"));
+    try {
+      final user = await _repository.signInWithEmail(email, password);
+      if (user != null) emit(Authenticated(user.uid));
+    } catch (e) {
+      emit(AuthError("Sai email hoặc mật khẩu!"));
     }
   }
 
-  Future<void> logout() async {
-    await authService.signOut();
-    emit(AuthInitial());
+  // Logic Đăng nhập Google
+  Future<void> loginGoogle() async {
+    emit(AuthLoading());
+    try {
+      final user = await _repository.signInWithGoogle();
+      if (user != null) {
+        emit(Authenticated(user.uid));
+      } else {
+        emit(AuthInitial()); // Người dùng hủy đăng nhập
+      }
+    } catch (e) {
+      emit(AuthError("Lỗi đăng nhập Google: ${e.toString()}"));
+    }
   }
+
+  Future<void> registerEmail(String email, String password) async {
+  emit(AuthLoading());
+  try {
+    // Giả sử AuthRepository của bạn đã có hàm signUpWithEmail
+    final user = await _repository.signUpWithEmail(email, password);
+    if (user != null) {
+      emit(Authenticated(user.uid));
+    }
+  } catch (e) {
+    emit(AuthError("Đăng ký thất bại: ${e.toString()}"));
+  }
+}
 }

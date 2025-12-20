@@ -1,4 +1,4 @@
-import 'package:frontend/data/models/category_model.dart';
+import 'package:frontend/models/category_model.dart';
 
 final List<CategoryModel> defaultCategories = [
   CategoryModel(label: 'Grocery', colorValue: 0xFFCCFF80, svgPath: 'assets/icons/categorys/grocery.svg'),

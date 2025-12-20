@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/models/task_model.dart';
 
 abstract class TaskState extends Equatable {
   const TaskState();

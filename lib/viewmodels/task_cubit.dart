@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/data/models/task_model.dart';
+import 'package:frontend/models/task_model.dart';
 import 'package:frontend/repository/task/task_repository.dart';
 import 'package:frontend/service/notification_service.dart';
 import 'package:frontend/viewmodels/task_state.dart';
