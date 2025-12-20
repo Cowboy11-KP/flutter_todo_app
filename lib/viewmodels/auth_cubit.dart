@@ -8,7 +8,7 @@ class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this._repository) : super(AuthInitial());
 
   // Logic Đăng nhập Email
-  Future<void> loginEmail(String email, String password) async {
+  Future<void> loginEmail({required String email, required String password}) async {
     emit(AuthLoading());
     try {
       final user = await _repository.signInWithEmail(email, password);
@@ -33,11 +33,11 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> registerEmail(String email, String password) async {
+  Future<void> registerEmail({ required String userName,required String email, required String password}) async {
   emit(AuthLoading());
   try {
     // Giả sử AuthRepository của bạn đã có hàm signUpWithEmail
-    final user = await _repository.signUpWithEmail(email, password);
+    final user = await _repository.signUpWithEmail(userName, email, password);
     if (user != null) {
       emit(Authenticated(user.uid));
     }

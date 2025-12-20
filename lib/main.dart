@@ -6,6 +6,7 @@ import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/views/splash_screen.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:frontend/data/local/hive_config.dart';
@@ -58,7 +59,7 @@ class MyApp extends StatelessWidget {
       title: 'UpTodo App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: OnboardingScreen()
+      home: const SplashScreen(),
     );
   }
 }

@@ -105,7 +105,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     }
                     return PrimaryButton(
                       text: 'Register',
-                      onPressed: () {
+                      onPressed: () async {
+                        await context.read<AuthCubit>().registerEmail(
+                          userName: _usernameController.text.trim(),
+                          email: _emailController.text.trim(),
+                          password: _passwordController.text.trim()
+                        );
                       },
                       width: double.infinity,
                     );

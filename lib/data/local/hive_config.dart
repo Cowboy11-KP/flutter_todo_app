@@ -11,6 +11,7 @@ class HiveConfig {
     Hive.registerAdapter(CategoryModelAdapter());
 
     // Open all boxes needed in app
+    await Hive.openBox('settings');
     await Hive.openBox<TaskModel>('Tasks');
     await Hive.openBox<CategoryModel>('categories');
   }

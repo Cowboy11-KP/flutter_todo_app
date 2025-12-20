@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:frontend/views/onboarding/start_screen.dart';
+import 'package:hive/hive.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -39,8 +40,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _skip() {
-    Navigator.push(
+  void _skip() async {
+    
+    var box = Hive.box('settings');
+    await box.put('isFirstTime', false);
+    
+    Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => StartScreen())
     );

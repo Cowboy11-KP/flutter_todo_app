@@ -10,8 +10,8 @@ class AuthRepository {
     return credential.user;
   }
 
-  Future<User?> signUpWithEmail(String email, String password) async {
-    final credential = await _authService.signUpWithEmail(email, password);
+  Future<User?> signUpWithEmail(String userName, String email, String password) async {
+    final credential = await _authService.signUpWithEmail(userName, email, password);
     return credential.user;
   }
   

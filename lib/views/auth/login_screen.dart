@@ -9,6 +9,7 @@ import 'package:frontend/views/components/outlined_button.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:frontend/views/auth/register_screen.dart';
 import 'package:frontend/views/home/home_screen.dart';
+import 'package:hive/hive.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -21,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-
+  bool _isRememberMe = false;
   @override
   void dispose() {
     _emailController.dispose();
@@ -61,10 +62,37 @@ class _LoginScreenState extends State<LoginScreen> {
                   hint: "••••••••••",
                   obscureText: true,
                 ),
+
+                const SizedBox(height: 25),
+                Row(
+                  children: [
+                    SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: Checkbox(
+                        value: _isRememberMe,
+                        activeColor: Theme.of(context).colorScheme.primary,
+                        onChanged: (value) {
+                          setState(() {
+                            _isRememberMe = value ?? false;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      "Remember me",
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                    ),
+                  ],
+                ),
+
                 const SizedBox(height: 70),
                 BlocConsumer<AuthCubit, AuthState>(
-                  listener: (context, state) {
-                    if (state is Authenticated) {
+                  listener: (context, state) async {
+                    if (state is Authenticated)  {
+                      var box = Hive.box('settings');
+                      await box.put('isRememberMe', _isRememberMe);
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (_) => const HomeScreen()),
@@ -81,10 +109,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     }
                     return PrimaryButton(
                       text: 'Login',
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context, 
-                          MaterialPageRoute(builder: (context) => HomeScreen())
+                      onPressed: () async {
+                        await context.read<AuthCubit>().loginEmail(
+                          email: _emailController.text.trim(), 
+                          password: _passwordController.text.trim()
                         );
                       },
                       width: double.infinity,
