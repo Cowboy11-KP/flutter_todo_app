@@ -8,6 +8,7 @@ import 'package:frontend/service/notification_service.dart';
 import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
+import 'package:frontend/views/components/pulse_glow_animation.dart';
 import 'package:frontend/views/home/index/addTask_screen.dart';
 import 'package:frontend/views/home/index/editTask_screen.dart';
 
@@ -237,8 +238,16 @@ class IndexScreenState extends State<IndexScreen>
   }
 
   Widget _buildTaskItem(BuildContext context, TaskModel task) {
-    CategoryModel? category;
 
+    final now = DateTime.now();
+
+    final bool isOverdue = !task.isDone && task.date.isBefore(now);
+    final bool isDueNow = !task.isDone && 
+        task.date.isAfter(now.subtract(const Duration(minutes: 1))) && 
+        task.date.isBefore(now.add(const Duration(minutes: 15)));
+
+    // Get List category
+    CategoryModel? category;
     try {
       category = defaultCategories.firstWhere(
         (cat) => cat.label == task.category,
@@ -247,87 +256,91 @@ class IndexScreenState extends State<IndexScreen>
       category = null;
     }
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context, 
-          MaterialPageRoute(builder: (context) => EditTaskScreen(task: task))
-        );
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: const Color(0xFF2E2E2E),
-          borderRadius: BorderRadius.circular(4)
-        ),
-        margin: const EdgeInsets.symmetric(vertical: 6),
-        child: ListTile(
-          leading: Icon(Icons.circle_outlined),
-          title: Text(
-            task.title,
-            style: Theme.of(context).textTheme.bodyLarge,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    return PulseGlowWrapper(
+      isEnabled: isDueNow,
+      glowColor: Theme.of(context).colorScheme.primary,
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context, 
+            MaterialPageRoute(builder: (context) => EditTaskScreen(task: task))
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF2E2E2E),
+            borderRadius: BorderRadius.circular(4),
           ),
-          subtitle: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'Today At ${task.date.hour.toString().padLeft(2, '0')}:${task.date.minute.toString().padLeft(2, '0')}',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
-              ),
-              Row(
-                children: [
-                  category != null
-                    ? Container(
-                      margin: EdgeInsets.only(top: 6),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: category.color,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Row(
-                        children: [
-                          SvgPicture.asset(
-                            category.svgPath,
-                            height: 14,
-                            width: 14,
-                            colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
-                          ),
-                          const SizedBox(width: 5),
-                          Text(
-                            category.label,
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: AppColors.darken(category.color, 0.5)
-                            )
-                          )
-                        ],
-                      )
-                    )
-                    : Container(),
-                  const SizedBox(width: 12),
-                  task.priority != null
-                    ? Container(
-                      margin: EdgeInsets.only(top: 6),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+          margin: const EdgeInsets.symmetric(vertical: 6),
+          child: ListTile(
+            leading: Icon(Icons.circle_outlined),
+            title: Text(
+              task.title,
+              style: Theme.of(context).textTheme.bodyLarge,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            subtitle: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Today At ${task.date.hour.toString().padLeft(2, '0')}:${task.date.minute.toString().padLeft(2, '0')}',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
+                ),
+                Row(
+                  children: [
+                    category != null
+                      ? Container(
+                        margin: EdgeInsets.only(top: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                         decoration: BoxDecoration(
+                          color: category.color,
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1)
                         ),
                         child: Row(
                           children: [
-                            SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
+                            SvgPicture.asset(
+                              category.svgPath,
+                              height: 14,
+                              width: 14,
+                              colorFilter: ColorFilter.mode(AppColors.darken(category.color, 0.5), BlendMode.srcIn,),
+                            ),
                             const SizedBox(width: 5),
                             Text(
-                              task.priority.toString(),
-                              style: Theme.of(context).textTheme.labelMedium,
+                              category.label,
+                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: AppColors.darken(category.color, 0.5)
+                              )
                             )
                           ],
                         )
                       )
-                    : Container()
-                ],
-              )
-            ],
+                      : Container(),
+                    const SizedBox(width: 12),
+                    task.priority != null
+                      ? Container(
+                        margin: EdgeInsets.only(top: 6),
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1)
+                          ),
+                          child: Row(
+                            children: [
+                              SvgPicture.asset('assets/icons/flag.svg', width: 14, height: 14,),
+                              const SizedBox(width: 5),
+                              Text(
+                                task.priority.toString(),
+                                style: Theme.of(context).textTheme.labelMedium,
+                              )
+                            ],
+                          )
+                        )
+                      : Container()
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

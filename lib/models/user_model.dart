@@ -28,6 +28,21 @@ class UserModel {
     this.createdAt,
   });
 
+  UserModel copyWith({
+    String? uid,
+    String? email,
+    String? displayName,
+    String? photoUrl,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      uid: uid ?? this.uid,
+      email: email ?? this.email,
+      displayName: displayName ?? this.displayName,
+      photoUrl: photoUrl ?? this.photoUrl,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
   // Chuyển sang Map để lưu Firebase
   Map<String, dynamic> toMap() => {
         'uid': uid,

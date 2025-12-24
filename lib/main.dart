@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/repository/auth_repository.dart';
+import 'package:frontend/repository/user/user_repository.dart';
 import 'package:frontend/service/auth_service.dart';
 import 'package:frontend/service/notification_service.dart';
 
@@ -31,13 +32,16 @@ Future<void> main() async {
 
   final localService = LocalTaskService();
   final authService = AuthService();
-
+  
+  final userRepository = UserRepository();
+  
   final todoRepository = TaskRepository(
     local: localService,
   );
   final authRepository = AuthRepository(
     authService: authService,
-    taskRepository: todoRepository
+    taskRepository: todoRepository, 
+    userRepository: userRepository
   );
 
 

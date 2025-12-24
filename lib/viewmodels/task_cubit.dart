@@ -142,6 +142,36 @@ class TaskCubit extends Cubit<TaskState> {
     
   }
 
+  Future<void> toggleTaskStatus(TaskModel task) async {
+    try {
+      await repository.updateIsDone(task.id);
+
+      // 2. Xử lý Thông báo
+      final int notiId = _getNotificationId(task.id);
+      
+      if (!task.isDone) { 
+        await NotificationService.cancel(notiId);
+        debugPrint("🔔 Đã hủy thông báo cho Task: ${task.title}");
+      } else {
+        if (task.date.isAfter(DateTime.now())) {
+          await NotificationService.scheduleNotification(
+            id: notiId,
+            title: task.title,
+            body: "Đến giờ: ${task.title}",
+            scheduledTime: task.date,
+            taskId: task.id,
+          );
+          debugPrint("🔔 Đã đặt lại thông báo cho Task: ${task.title}");
+        }
+      }
+      await loadTodos();
+      
+    } catch (e) {
+      debugPrint("❌ Lỗi toggleTaskStatus: $e");
+      emit(TaskError('Cập nhật trạng thái thất bại: $e'));
+    }
+  }
+
   /// delete Task
   Future<void> deleteTask(String id) async {
     try {

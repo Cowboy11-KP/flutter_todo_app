@@ -34,15 +34,24 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> registerEmail({ required String userName,required String email, required String password}) async {
-  emit(AuthLoading());
-  try {
-    // Giả sử AuthRepository của bạn đã có hàm signUpWithEmail
-    final user = await _repository.signUpWithEmail(userName, email, password);
-    if (user != null) {
-      emit(Authenticated(user.uid));
+    emit(AuthLoading());
+    try {
+      // Giả sử AuthRepository của bạn đã có hàm signUpWithEmail
+      final user = await _repository.signUpWithEmail(userName, email, password);
+      if (user != null) {
+        emit(Authenticated(user.uid));
+      }
+    } catch (e) {
+      emit(AuthError("Đăng ký thất bại: ${e.toString()}"));
     }
-  } catch (e) {
-    emit(AuthError("Đăng ký thất bại: ${e.toString()}"));
   }
-}
+  
+  Future<void> logOut() async {
+    emit(AuthLoading());
+    try {
+      await _repository.logOut();
+    } catch (e) {
+      emit(AuthError("Log Out failed: ${e.toString()}"));
+    }
+  }
 }
