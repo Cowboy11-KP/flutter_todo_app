@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:frontend/views/auth/login_screen.dart';
 import 'package:frontend/views/home/home_screen.dart';
 import 'package:frontend/views/onboarding/onboarding_screen.dart';
@@ -63,7 +64,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image.asset('assets/logo.svg', width: 113, height: 113,),
+            SvgPicture.asset('assets/logo.svg', width: 113, height: 113,),
             const SizedBox(height: 20),
             Text(
               'UpTodo',

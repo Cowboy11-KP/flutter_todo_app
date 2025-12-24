@@ -15,7 +15,6 @@ import 'package:frontend/data/local/hive_service.dart';
 import 'package:frontend/repository/task/task_repository.dart';
 import 'package:frontend/viewmodels/auth_cubit.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
-import 'package:frontend/views/onboarding/onboarding_screen.dart';
 import 'package:frontend/theme/app_theme.dart';
 
 Future<void> main() async {
@@ -33,11 +32,14 @@ Future<void> main() async {
   final localService = LocalTaskService();
   final authService = AuthService();
 
-  final authRepository = AuthRepository(authService);
-
   final todoRepository = TaskRepository(
     local: localService,
   );
+  final authRepository = AuthRepository(
+    authService: authService,
+    taskRepository: todoRepository
+  );
+
 
   runApp(
     MultiBlocProvider(
