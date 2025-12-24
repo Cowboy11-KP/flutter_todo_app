@@ -71,7 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   controller: _passwordController,
                   hint: "••••••••••",
-                  obscureText: true,
+                  isPassword: true,
                 ),
                 const SizedBox(height: 25),
 
@@ -82,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 CustomTextField(
                   controller: _confirmPasswordController,
                   hint: "••••••••••",
-                  obscureText: true,
+                  isPassword: true,
                 ),
                 const SizedBox(height: 70),
 
@@ -146,7 +146,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     if (state is Authenticated) {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
                       );
                     } else if (state is AuthError) {
                       ScaffoldMessenger.of(context).showSnackBar(

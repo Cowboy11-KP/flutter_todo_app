@@ -6,6 +6,7 @@ import 'package:frontend/models/category_model.dart';
 import 'package:frontend/models/task_model.dart';
 import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
+import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/components/custom_calendar.dart';
 import 'package:frontend/views/components/custom_category.dart';
 import 'package:frontend/views/components/custom_editTitle.dart';
@@ -28,6 +29,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
   DateTime? selectedDateTime; 
   String? selectedCategory;
   int? taskPriority;
+  bool? isDoneStatus;
   
   Future<void> showTitle() async {
   final result = await showDialog<Map<String, String>>(
@@ -121,6 +123,7 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
     final displayTime = selectedDateTime ?? widget.task.date;
     final displayPriority = taskPriority ?? widget.task.priority;
     final currentCategoryLabel = selectedCategory ?? widget.task.category;
+    final displayIsDone = isDoneStatus ?? widget.task.isDone;
 
     CategoryModel? displayCategoryModel;
     try {
@@ -205,6 +208,75 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
               onPressed: showTaskPriority,
               label: displayPriority?.toString() ?? 'Default',
             ),
+
+            const SizedBox(height: 34),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.check, size: 24,),
+                    const SizedBox(width: 8),
+                    Text('Is done:', style: theme.textTheme.bodyMedium)
+                  ],
+                ),
+                
+                // Sử dụng PopupMenuButton để làm Dropdown
+                PopupMenuButton<bool>(
+                  initialValue: displayIsDone,
+                  onSelected: (bool value) {
+                    setState(() {
+                      isDoneStatus = value;
+                    });
+                  },
+                  itemBuilder: (BuildContext context) => <PopupMenuEntry<bool>>[
+                    const PopupMenuItem<bool>(
+                      value: true,
+                      child: Row(
+                        children: [
+                          Icon(Icons.check_circle, color: Colors.green),
+                          SizedBox(width: 8),
+                          Text('Yes'),
+                        ],
+                      ),
+                    ),
+                    const PopupMenuItem<bool>(
+                      value: false,
+                      child: Row(
+                        children: [
+                          Icon(Icons.circle_outlined, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Text('No'),
+                        ],
+                      ),
+                    ),
+                  ],
+                  // Đây là phần hiển thị giao diện của nút Dropdown
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          displayIsDone ? Icons.check_circle : Icons.circle_outlined,
+                          size: 14,
+                          color: displayIsDone ? Colors.green : Colors.grey,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          displayIsDone ? "yes" : "No",
+                          style: theme.textTheme.labelMedium,
+                        ),
+                        const Icon(Icons.arrow_drop_down, color: Colors.white70),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 34),
             InkWell(
               borderRadius: BorderRadius.circular(8),
@@ -258,21 +330,37 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
             Center(
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 40),
-                child: PrimaryButton(
-                  width: double.infinity,
-                  onPressed: () async {
-                    final updated = TaskModel(
-                      id: widget.task.id,
-                      title: displayTitle,
-                      description: displayDescription,
-                      date: displayTime,
-                      category: currentCategoryLabel,
-                      priority: displayPriority,
-                      isDone: widget.task.isDone,
-                    );
-                    await context.read<TaskCubit>().updateTask(updated);
+                child: BlocConsumer<TaskCubit, TaskState>(
+                  listener: (context, state) {
+                    if (state is TaskLoaded) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Update success!')),
+                      );
+                    } else if (state is TaskError) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(state.message)),
+                      );
+                    }
                   },
-                  text: 'Edit Task',
+                  builder: (context, state) {
+                    return PrimaryButton(
+                      width: double.infinity,
+                      onPressed: () async {
+                        final updated = TaskModel(
+                          id: widget.task.id,
+                          title: displayTitle,
+                          description: displayDescription,
+                          date: displayTime,
+                          category: currentCategoryLabel,
+                          priority: displayPriority,
+                          isDone: displayIsDone,
+                        );
+                        await context.read<TaskCubit>().updateTask(updated);
+                      },
+                      text: 'Edit Task',
+                    );
+                  },
+
                 ),
               ),
             )

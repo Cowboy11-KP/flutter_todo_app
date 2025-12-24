@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 CustomTextField(
                   controller: _passwordController,
                   hint: "••••••••••",
-                  obscureText: true,
+                  isPassword: true,
                 ),
 
                 const SizedBox(height: 25),

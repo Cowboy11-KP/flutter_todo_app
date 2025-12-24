@@ -194,10 +194,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              // Gọi Cubit để đăng xuất
-              context.read<AuthCubit>().logOut();
+              await context.read<AuthCubit>().logOut();
+              // 3. Kiểm tra mounted trước khi chuyển màn hình
+            if (context.mounted) {
+              // Xóa toàn bộ stack và về màn hình Login
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                '/start', 
+                (route) => false,
+              );
+            }
             },
             child: const Text('Log out', style: TextStyle(color: Colors.white)),
           ),

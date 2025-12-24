@@ -7,6 +7,10 @@ import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/views/auth/login_screen.dart';
+import 'package:frontend/views/home/home_screen.dart';
+import 'package:frontend/views/onboarding/onboarding_screen.dart';
+import 'package:frontend/views/onboarding/start_screen.dart';
 import 'package:frontend/views/splash_screen.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
@@ -40,6 +44,7 @@ Future<void> main() async {
   );
   final authRepository = AuthRepository(
     authService: authService,
+    local: localService,
     taskRepository: todoRepository, 
     userRepository: userRepository
   );
@@ -65,7 +70,15 @@ class MyApp extends StatelessWidget {
       title: 'UpTodo App',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
-      home: const SplashScreen(),
+      initialRoute: '/splash',
+
+      routes: {
+        '/splash': (context) => const SplashScreen(),
+        '/onboarding': (context) => const OnboardingScreen(),
+        '/start': (context) => const StartScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const HomeScreen(),
+      },
     );
   }
 }

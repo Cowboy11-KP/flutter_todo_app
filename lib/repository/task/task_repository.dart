@@ -124,5 +124,45 @@ class TaskRepository {
     }
   }
 
+  // 6. LẤY DỮ LIỆU TỪ FIREBASE VỀ LOCAL
+  Future<void> syncTasksFromFirebase(String uid) async {
+    try {
+      // Lấy snapshot từ Firestore
+      final querySnapshot = await _firestore
+          .collection('users')
+          .doc(uid)
+          .collection('tasks')
+          .get();
+
+      if (querySnapshot.docs.isEmpty) return;
+
+      // Chuyển đổi dữ liệu từ Firestore thành danh sách TaskModel
+      final List<TaskModel> firebaseTasks = querySnapshot.docs.map((doc) {
+        return TaskModel.fromJson(doc.data());
+      }).toList();
+
+      // Lấy danh sách task hiện tại ở Local để so sánh
+      final localTasks = local.getTasks();
+
+      for (var fbTask in firebaseTasks) {
+        // Kiểm tra xem task từ Firebase đã tồn tại ở Local chưa
+        final existsLocally = localTasks.any((lt) => lt.id == fbTask.id);
+
+        if (!existsLocally) {
+          // Nếu chưa có ở Local -> Thêm mới vào Hive
+          await local.addTask(fbTask.copyWith(isSynced: true));
+        } else {
+          // Nếu đã có -> Cập nhật Local theo Firebase (vì Firebase được coi là "nguồn sự thật" cuối cùng)
+          // Bạn có thể thêm logic so sánh updatedAt nếu model có trường thời gian chỉnh sửa
+          await local.updateTask(fbTask.copyWith(isSynced: true));
+        }
+      }
+      print("✅ Đồng bộ từ Firebase về Local thành công.");
+    } catch (e) {
+      print("❌ Lỗi syncTasksFromFirebase: $e");
+      rethrow; // Ném lỗi để Cubit có thể bắt và hiển thị thông báo
+    }
+  }
+
   List<TaskModel> getLocalTasks() => local.getTasks();
 }

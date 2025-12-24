@@ -14,6 +14,11 @@ class LocalTaskService {
   Future<void> updateTask(TaskModel task) async => _box.put(task.id, task);
 
   Future<void> deleteTask(String id) async => _box.delete(id);
+
+  Future<void> clearAllTasks() async {
+    var box = Hive.box<TaskModel>(boxName);
+    await box.clear(); // Xóa tất cả các key/value trong box nhưng không đóng box
+  }
 }
 
 class LocalCategoryService {

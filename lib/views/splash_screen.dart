@@ -1,9 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:frontend/views/auth/login_screen.dart';
-import 'package:frontend/views/home/home_screen.dart';
-import 'package:frontend/views/onboarding/onboarding_screen.dart';
 import 'package:hive/hive.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -32,7 +29,7 @@ class _SplashScreenState extends State<SplashScreen> {
     if (isFirstTime) {
       // Nếu lần đầu, chuyển tới Onboarding và đánh dấu đã xem
       await box.put('isFirstTime', false);
-      _navigateTo(const OnboardingScreen());
+      Navigator.pushReplacementNamed(context, '/onboarding');
       return;
     }
 
@@ -42,19 +39,11 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (isRememberMe && currentUser != null) {
       // Nếu có tích Remember me và đã từng login thành công
-      _navigateTo(const HomeScreen());
+      Navigator.pushReplacementNamed(context, '/home');
     } else {
       // Ngược lại bắt đăng nhập lại
-      _navigateTo(const LoginScreen());
+      Navigator.pushReplacementNamed(context, '/start');
     }
-  }
-
-  void _navigateTo(Widget screen) {
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => screen),
-    );
   }
 
   @override

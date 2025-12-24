@@ -19,7 +19,7 @@ class _StartScreenState extends State<StartScreen> {
     return Scaffold(
       appBar: CustomAppBar(
         title: '',
-        showBack: true,
+        showBack: false,
       ),
       body: SafeArea(
         child: Padding(
