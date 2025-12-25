@@ -230,12 +230,10 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     });
                   },
                   itemBuilder: (BuildContext context) => <PopupMenuEntry<bool>>[
-                    const PopupMenuItem<bool>(
+                    PopupMenuItem<bool>(
                       value: true,
                       child: Row(
                         children: [
-                          Icon(Icons.check_circle, color: Colors.green),
-                          SizedBox(width: 8),
                           Text('Yes'),
                         ],
                       ),
@@ -244,8 +242,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                       value: false,
                       child: Row(
                         children: [
-                          Icon(Icons.circle_outlined, color: Colors.grey),
-                          SizedBox(width: 8),
                           Text('No'),
                         ],
                       ),
@@ -260,11 +256,6 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          displayIsDone ? Icons.check_circle : Icons.circle_outlined,
-                          size: 14,
-                          color: displayIsDone ? Colors.green : Colors.grey,
-                        ),
                         const SizedBox(width: 8),
                         Text(
                           displayIsDone ? "yes" : "No",

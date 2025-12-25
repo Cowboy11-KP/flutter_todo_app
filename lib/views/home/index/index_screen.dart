@@ -256,6 +256,10 @@ class IndexScreenState extends State<IndexScreen>
       category = null;
     }
 
+    final Color timeColor = isOverdue
+      ? Colors.redAccent
+      : Theme.of(context).colorScheme.secondary;
+
     return PulseGlowWrapper(
       isEnabled: isDueNow,
       glowColor: Theme.of(context).colorScheme.primary,
@@ -276,7 +280,9 @@ class IndexScreenState extends State<IndexScreen>
             leading: Icon(Icons.circle_outlined),
             title: Text(
               task.title,
-              style: Theme.of(context).textTheme.bodyLarge,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  decoration: isOverdue ? TextDecoration.lineThrough : null,
+                ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -285,7 +291,7 @@ class IndexScreenState extends State<IndexScreen>
               children: [
                 Text(
                   'Today At ${task.date.hour.toString().padLeft(2, '0')}:${task.date.minute.toString().padLeft(2, '0')}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: timeColor)
                 ),
                 Row(
                   children: [
