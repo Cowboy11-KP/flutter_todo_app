@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/models/task_model.dart';
+import 'package:frontend/viewmodels/task_cubit.dart';
+import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:intl/intl.dart';
 
@@ -196,8 +200,13 @@ class _CustomCalendarState extends State<CustomCalendar> {
   }
 
   Widget _buildListView(List<DateTime> days, DateTime today){
+    final state = context.watch<TaskCubit>().state;
+    List<TaskModel> tasks = [];
+    if (state is TaskLoaded) tasks = state.tasks;
+    if (state is TaskActionSuccess) tasks = state.tasks;
+
     return SizedBox(
-      height: 55,
+      height: 65,
       child: ListView.builder( 
         controller: _scrollController,
         scrollDirection: Axis.horizontal,
@@ -210,6 +219,8 @@ class _CustomCalendarState extends State<CustomCalendar> {
                              _selectedDate.day == day.day;
           final isPastDay = day.isBefore(DateTime(today.year, today.month, today.day));
 
+          bool hasTask = tasks.any((t) => DateUtils.isSameDay(t.date, day));
+
           final weekday = DateFormat('EEE').format(day).toUpperCase();
 
           return GestureDetector(
@@ -217,13 +228,13 @@ class _CustomCalendarState extends State<CustomCalendar> {
                 ? () => _onSelectDay(day)
                 : null,
             child: Container(
-              width: 40,
+              width: 48,
               margin: const EdgeInsets.only(right: 10),
               decoration: BoxDecoration(
                 color: isSelected
-                    ? Colors.deepPurpleAccent
-                    : isCurrentMonth
-                        ? const Color(0xFF3A3A3A)
+                    ? Theme.of(context).colorScheme.primary
+                    : (isCurrentMonth && !isPastDay) 
+                        ? Color(0xFF272727)
                         : Colors.transparent,
                 borderRadius: BorderRadius.circular(4),
               ),
@@ -236,10 +247,10 @@ class _CustomCalendarState extends State<CustomCalendar> {
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
                       color: (index % 7 == 0)
-                          ? Colors.redAccent // Chủ nhật
+                          ? Color(0xFFFF383C) // Chủ nhật
                           : (index % 7 == 1)
-                              ? Colors.redAccent // Thứ 7
-                              : Colors.white70,
+                              ? Color(0xFFFF383C) // Thứ 7
+                              : Colors.white,
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -255,6 +266,20 @@ class _CustomCalendarState extends State<CustomCalendar> {
                               : Colors.white30,
                     ),
                   ),
+
+                  if (hasTask)
+                  Container(
+                    margin: const EdgeInsets.only(top: 2),
+                    width: 4,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      // Quá khứ: xám, Hiện tại/Tương lai: đỏ
+                      color: isPastDay ? Colors.grey : Theme.of(context).colorScheme.primary,
+                    ),
+                  )
+                else
+                  const SizedBox(height: 6),
                 ],
               ),
             ),
@@ -312,7 +337,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
               child: Container(
                 decoration: BoxDecoration(
                   color: isSelected
-                      ? Colors.deepPurpleAccent
+                      ? Theme.of(context).colorScheme.primary
                       : (isCurrentMonth && !isPastDay)
                           ? Color(0xFF272727)
                           : Colors.transparent,
