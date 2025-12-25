@@ -42,114 +42,133 @@ class _TimePickerScreenState extends State<TimePickerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF363636),
+        borderRadius: BorderRadius.circular(4),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           const Text('Choose Time',
               style: TextStyle(color: Colors.white, fontSize: 18)),
           const Divider(color: Colors.white24),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // Hours
-              Container(
-                height: 64,
-                width: 64,
-                padding: EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Color(0xff272727)
-                ),
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(initialItem: selectedHour - 1),
-                  itemExtent: 36,
-                  onSelectedItemChanged: (i) => setState(() => selectedHour = i + 1),
-                  children: List.generate(
-                    12,
-                    (i) => Center(
-                      child: Text('${i + 1}',
-                          style: const TextStyle(color: Colors.white, fontSize: 22)),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 21),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Hours
+                Container(
+                  height: 64,
+                  width: 64,
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Color(0xff272727)
+                  ),
+                  child: CupertinoPicker(
+                    scrollController: FixedExtentScrollController(initialItem: selectedHour - 1),
+                    itemExtent: 36,
+                    onSelectedItemChanged: (i) => setState(() => selectedHour = i + 1),
+                    children: List.generate(
+                      12,
+                      (i) => Center(
+                        child: Text('${i + 1}',
+                            style: const TextStyle(color: Colors.white, fontSize: 22)),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 7),
-              const Text(':',style: TextStyle(color: Colors.white, fontSize: 24)),
-              const SizedBox(width: 7),
-              // Minutes
-              Container(
-                height: 64,
-                width: 64,
-                padding: EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Color(0xff272727)
-                ),
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(initialItem: selectedMinute),
-                  itemExtent: 36,
-                  onSelectedItemChanged: (i) => setState(() => selectedMinute = i),
-                  children: List.generate(
-                    60,
-                    (i) => Center(
-                      child: Text(i.toString().padLeft(2, '0'),
-                          style: const TextStyle(color: Colors.white, fontSize: 22)),
+                const SizedBox(width: 7),
+                const Text(':',style: TextStyle(color: Colors.white, fontSize: 24)),
+                const SizedBox(width: 7),
+                // Minutes
+                Container(
+                  height: 64,
+                  width: 64,
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Color(0xff272727)
+                  ),
+                  child: CupertinoPicker(
+                    scrollController: FixedExtentScrollController(initialItem: selectedMinute),
+                    itemExtent: 36,
+                    onSelectedItemChanged: (i) => setState(() => selectedMinute = i),
+                    children: List.generate(
+                      60,
+                      (i) => Center(
+                        child: Text(i.toString().padLeft(2, '0'),
+                            style: const TextStyle(color: Colors.white, fontSize: 22)),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 16),
-              // AM/PM
-              Container(
-                height: 64,
-                width: 64,
-                padding: EdgeInsets.symmetric(vertical: 4),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4),
-                  color: Color(0xff272727)
+                const SizedBox(width: 16),
+                // AM/PM
+                Container(
+                  height: 64,
+                  width: 64,
+                  padding: EdgeInsets.symmetric(vertical: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4),
+                    color: Color(0xff272727)
+                  ),
+                  child: CupertinoPicker(
+                    scrollController: FixedExtentScrollController(initialItem: isAM ? 0 : 1),
+                    itemExtent: 36,
+                    onSelectedItemChanged: (i) => setState(() => isAM = i == 0),
+                    children: const [
+                      Center(child: Text('AM', style: TextStyle(color: Colors.white, fontSize: 22))),
+                      Center(child: Text('PM', style: TextStyle(color: Colors.white, fontSize: 22))),
+                    ],
+                  ),
                 ),
-                child: CupertinoPicker(
-                  scrollController: FixedExtentScrollController(initialItem: isAM ? 0 : 1),
-                  itemExtent: 36,
-                  onSelectedItemChanged: (i) => setState(() => isAM = i == 0),
-                  children: const [
-                    Center(child: Text('AM', style: TextStyle(color: Colors.white, fontSize: 22))),
-                    Center(child: Text('PM', style: TextStyle(color: Colors.white, fontSize: 22))),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 21),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              TextButton(
-                child: const Text('Cancel', style: TextStyle(color: Colors.blueAccent)),
-                onPressed: () => Navigator.pop(context),
-              ),
-              PrimaryButton(
-                onPressed: () {
-                  int hour24;
-
-                  if (use24Hour) {
-                    hour24 = selectedHour;
-                  } else {
-                    hour24 = selectedHour % 12;
-                    if (!isAM) hour24 += 12;
-                  }
-                  final fullDateTime = DateTime(
-                    widget.initialDate.year,
-                    widget.initialDate.month,
-                    widget.initialDate.day,
-                    hour24,
-                    selectedMinute,
-                  );
-                  Navigator.pop(context, fullDateTime);
-                },
-                text: 'Save',
+              Expanded(
+                flex: 1,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Cancel',
+                    style: Theme.of(context).textTheme.bodyLarge!.copyWith
+                    (color: Theme.of(context).colorScheme.primary),
+                  ),
+                ),
+              ), 
+              const SizedBox(width: 15),
+              Expanded(
+                flex: 1,
+                child: PrimaryButton(
+                  onPressed: () {
+                    int hour24;
+                
+                    if (use24Hour) {
+                      hour24 = selectedHour;
+                    } else {
+                      hour24 = selectedHour % 12;
+                      if (!isAM) hour24 += 12;
+                    }
+                    final fullDateTime = DateTime(
+                      widget.initialDate.year,
+                      widget.initialDate.month,
+                      widget.initialDate.day,
+                      hour24,
+                      selectedMinute,
+                    );
+                    Navigator.pop(context, fullDateTime);
+                  },
+                  text: 'Choose Time',
+                ),
               )
             ],
           ),

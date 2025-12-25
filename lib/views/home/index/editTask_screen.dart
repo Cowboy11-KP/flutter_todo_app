@@ -284,32 +284,77 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 showDialog(
                   context: context, 
                   builder: (BuildContext dialogContext) {
-                    return AlertDialog(
-                      title: Text('Delete Task?'),
-                      content: Text('Are you sure you want to delete this task?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(dialogContext); 
-                          },
-                          child: const Text('Cancel'),
+                    return Dialog(
+                      insetPadding: const EdgeInsets.all(24),
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF363636),
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        TextButton(
-                          onPressed: () async {
-                            Navigator.pop(dialogContext);
-                            
-                            await context.read<TaskCubit>().deleteTask(widget.task.id);
-                            
-                            if (context.mounted) {
-                              Navigator.pop(context);
-                            }
-                          },
-                          child: const Text(
-                            'Delete', 
-                            style: TextStyle(color: Colors.red),
-                          ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Delete Task',
+                            style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 10,),
+                            // Divider
+                            const Divider(color: Colors.white24),
+                            Padding(
+                              padding: EdgeInsetsGeometry.symmetric(vertical: 22),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text('Are You sure you want to delete this task?',
+                                    style: Theme.of(context).textTheme.headlineSmall,
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Text('Task title : ${displayTitle.toString()}',
+                                    style: Theme.of(context).textTheme.headlineSmall,
+                                  )
+                                ],
+                              )
+                            ),
+                            // BUTTONS 
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  flex: 1,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: Text('Cancel',
+                                      style: Theme.of(context).textTheme.bodyLarge!.copyWith
+                                      (color: Theme.of(context).colorScheme.primary),
+                                    ),
+                                  ),
+                                ), 
+                                const SizedBox(width: 15),
+                                Expanded(
+                                  flex: 1,
+                                  child: PrimaryButton(
+                                    onPressed: () async {
+                                      Navigator.pop(dialogContext);
+                                      
+                                      await context.read<TaskCubit>().deleteTask(widget.task.id);
+                                      
+                                      if (context.mounted) {
+                                        Navigator.pop(context);
+                                      }
+                                    },
+                                    text: 'Delete',
+                                  ),
+                                )
+                              ],
+                            )
+                          ],
                         ),
-                      ],
+                      ),
                     );
                   },
                 );

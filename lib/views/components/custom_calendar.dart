@@ -146,7 +146,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF2A2A2A),
+        color: const Color(0xFF363636),
         borderRadius: BorderRadius.circular(4),
       ),
       child: Column(
@@ -280,7 +280,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
               return Text(
                 weekDays[index],
                 style: TextStyle(
-                  color: isWeekend ? Colors.redAccent : Colors.white70,
+                  color: isWeekend ? Color(0xFFFF383C) : Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
               );
@@ -314,7 +314,7 @@ class _CustomCalendarState extends State<CustomCalendar> {
                   color: isSelected
                       ? Colors.deepPurpleAccent
                       : (isCurrentMonth && !isPastDay)
-                          ? Colors.white12
+                          ? Color(0xFF272727)
                           : Colors.transparent,
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -336,22 +336,31 @@ class _CustomCalendarState extends State<CustomCalendar> {
     );
   }
 
-   Widget _buildActionButtons(){
+  Widget _buildActionButtons(){
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: const Text('Cancel',
-              style: TextStyle(color: Colors.deepPurpleAccent)),
-        ),
-        PrimaryButton(
-          onPressed: () {
-            Navigator.pop(context, _selectedDate);
-          },
-          text: 'Choose Time',
+        Expanded(
+          flex: 1,
+          child: TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text('Cancel',
+              style: Theme.of(context).textTheme.bodyLarge!.copyWith
+              (color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ), 
+        const SizedBox(width: 15),
+        Expanded(
+          flex: 1,
+          child: PrimaryButton(
+            onPressed: () {
+              Navigator.pop(context, _selectedDate);
+            },
+            text: 'Choose Day',
+          ),
         )
       ],
     );

@@ -18,6 +18,7 @@ class AppTheme {
     textTheme: const TextTheme(
       headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
       headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+      headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w400),
       bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
       bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400,),
       bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
