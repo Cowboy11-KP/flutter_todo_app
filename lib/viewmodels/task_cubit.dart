@@ -19,12 +19,25 @@ class TaskCubit extends Cubit<TaskState> {
     emit(TaskLoading());
     try {
       final localTasks = repository.getLocalTasks();
-      emit(TaskLoaded(localTasks));
+      emit(TaskLoaded(_sortTasks(localTasks)));
     } catch (e) {
       emit(TaskError('Không thể tải dữ liệu: $e'));
     }
   }
   
+  // --- HÀM SẮP XẾP DÙNG CHUNG ---
+  List<TaskModel> _sortTasks(List<TaskModel> tasks) {
+    return tasks..sort((a, b) {
+      // 1. Sắp xếp theo ngày giờ tăng dần
+      int dateCompare = a.date.compareTo(b.date);
+      if (dateCompare != 0) return dateCompare;
+
+      // 2. Nếu cùng giờ, ưu tiên Priority cao hơn lên trước (ví dụ 1 là cao nhất)
+      // Nếu priority là null thì cho xuống cuối (mặc định là 10)
+      return (a.priority ?? 10).compareTo(b.priority ?? 10);
+    });
+  }
+
   /// add task
   Future<void> addTask({
     required String title,
@@ -67,7 +80,7 @@ class TaskCubit extends Cubit<TaskState> {
       debugPrint("   🆔  ID: ${task.id}");
       debugPrint("   Tổng số task hiện tại: ${tasks.length}");
 
-      emit(TaskActionSuccess(tasks, 'Đã thêm task thành công!'));
+      emit(TaskActionSuccess(_sortTasks(tasks), 'Đã thêm task thành công!'));
     } catch (e) {
       debugPrint("❌ Lỗi khi thêm task: $e");
       emit(TaskError('Thêm thất bại: $e'));
@@ -155,4 +168,5 @@ class TaskCubit extends Cubit<TaskState> {
       emit(TaskError('Xóa thất bại: $e'));
     }
   }
+  
 }
