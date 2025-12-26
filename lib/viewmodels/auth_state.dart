@@ -1,11 +1,35 @@
-abstract class AuthState {}
-class AuthInitial extends AuthState {}
-class AuthLoading extends AuthState {}
-class Authenticated extends AuthState {
-  final String uid;
-  Authenticated(this.uid);
+enum AuthStatus { 
+  initial, 
+  loginEmailLoading,    
+  loginGoogleLoading,   
+  registerLoading, 
+  logoutLoading, 
+  authenticated, 
+  error 
 }
-class AuthError extends AuthState {
-  final String message;
-  AuthError(this.message);
+
+class AuthState {
+  final AuthStatus status;
+  final String? uid;
+  final String? message;
+
+  AuthState({
+    required this.status,
+    this.uid,
+    this.message,
+  });
+
+  factory AuthState.initial() => AuthState(status: AuthStatus.initial);
+
+  AuthState copyWith({
+    AuthStatus? status,
+    String? uid,
+    String? message,
+  }) {
+    return AuthState(
+      status: status ?? this.status,
+      uid: uid ?? this.uid,
+      message: message ?? this.message, // Lưu ý: giữ message cũ nếu không truyền mới
+    );
+  }
 }

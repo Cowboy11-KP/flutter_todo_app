@@ -1,57 +1,67 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../repository/auth_repository.dart';
-import 'auth_state.dart';
+import 'package:frontend/repository/auth_repository.dart';
+import 'package:frontend/viewmodels/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
   final AuthRepository _repository;
 
-  AuthCubit(this._repository) : super(AuthInitial());
+  AuthCubit(this._repository) : super(AuthState.initial());
 
-  // Logic Đăng nhập Email
+  // Đăng nhập Email
   Future<void> loginEmail({required String email, required String password}) async {
-    emit(AuthLoading());
+    emit(state.copyWith(status: AuthStatus.loginEmailLoading));
     try {
       final user = await _repository.signInWithEmail(email, password);
-      if (user != null) emit(Authenticated(user.uid));
+      if (user != null) {
+        emit(state.copyWith(status: AuthStatus.authenticated, uid: user.uid));
+      } else {
+        emit(state.copyWith(status: AuthStatus.initial));
+      }
     } catch (e) {
-      emit(AuthError("Sai email hoặc mật khẩu!"));
+      emit(state.copyWith(status: AuthStatus.error, message: "Sai email hoặc mật khẩu!"));
+      emit(state.copyWith(status: AuthStatus.initial, message: null)); // Reset trạng thái
     }
   }
 
-  // Logic Đăng nhập Google
+  // Đăng nhập Google
   Future<void> loginGoogle() async {
-    emit(AuthLoading());
+    emit(state.copyWith(status: AuthStatus.loginGoogleLoading));
     try {
       final user = await _repository.signInWithGoogle();
       if (user != null) {
-        emit(Authenticated(user.uid));
+        emit(state.copyWith(status: AuthStatus.authenticated, uid: user.uid));
       } else {
-        emit(AuthInitial()); // Người dùng hủy đăng nhập
+        emit(state.copyWith(status: AuthStatus.initial));
       }
     } catch (e) {
-      emit(AuthError("Lỗi đăng nhập Google: ${e.toString()}"));
+      emit(state.copyWith(status: AuthStatus.error, message: "Lỗi Google: ${e.toString()}"));
+      emit(state.copyWith(status: AuthStatus.initial, message: null));
     }
   }
 
-  Future<void> registerEmail({ required String userName,required String email, required String password}) async {
-    emit(AuthLoading());
+  // Đăng ký
+  Future<void> registerEmail({required String userName, required String email, required String password}) async {
+    emit(state.copyWith(status: AuthStatus.registerLoading));
     try {
-      // Giả sử AuthRepository của bạn đã có hàm signUpWithEmail
       final user = await _repository.signUpWithEmail(userName, email, password);
       if (user != null) {
-        emit(Authenticated(user.uid));
+        emit(state.copyWith(status: AuthStatus.authenticated, uid: user.uid));
       }
     } catch (e) {
-      emit(AuthError("Đăng ký thất bại: ${e.toString()}"));
+      emit(state.copyWith(status: AuthStatus.error, message: e.toString()));
+      emit(state.copyWith(status: AuthStatus.initial, message: null));
     }
   }
-  
+
+  // Đăng xuất
   Future<void> logOut() async {
-    emit(AuthLoading());
+    emit(state.copyWith(status: AuthStatus.logoutLoading));
     try {
       await _repository.logOut();
+      emit(AuthState.initial());
     } catch (e) {
-      emit(AuthError("Log Out failed: ${e.toString()}"));
+      emit(state.copyWith(status: AuthStatus.error, message: "Lỗi đăng xuất"));
+      emit(state.copyWith(status: AuthStatus.initial, message: null));
     }
   }
 }
