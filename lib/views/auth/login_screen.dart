@@ -8,7 +8,6 @@ import 'package:frontend/views/components/custom_app_bar.dart';
 import 'package:frontend/views/components/outlined_button.dart';
 import 'package:frontend/views/components/primary_button.dart';
 import 'package:frontend/views/auth/register_screen.dart';
-import 'package:frontend/views/home/home_screen.dart';
 import 'package:hive/hive.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -46,10 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   var box = Hive.box('settings');
                   await box.put('isRememberMe', _isRememberMe);
                   if (!mounted) return;
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const HomeScreen()),
-                  );
+                  Navigator.pushReplacementNamed(context, '/home');
                 } else if (state.status == AuthStatus.error && state.message != null) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text(state.message!), backgroundColor: Colors.red),

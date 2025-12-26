@@ -7,7 +7,11 @@ class UserState {
   final UserModel? user;
   final String? message;
 
-  UserState({this.status = UserStatus.initial, this.user, this.message});
+  UserState({
+    this.status = UserStatus.initial, 
+    this.user, 
+    this.message
+  });
 
   UserState copyWith({UserStatus? status, UserModel? user, String? message}) {
     return UserState(

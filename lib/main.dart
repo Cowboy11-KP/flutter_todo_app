@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:frontend/firebase_options.dart';
 import 'package:frontend/repository/auth_repository.dart';
 import 'package:frontend/repository/user/user_repository.dart';
-import 'package:frontend/service/auth_service.dart';
+import 'package:frontend/service/firebase_auth_service.dart';
 import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';

@@ -3,7 +3,7 @@ import 'package:frontend/data/local/hive_service.dart';
 import 'package:frontend/models/user_model.dart';
 import 'package:frontend/repository/task/task_repository.dart';
 import 'package:frontend/repository/user/user_repository.dart';
-import '../service/auth_service.dart';
+import '../service/firebase_auth_service.dart';
 
 class AuthRepository {
   final AuthService _authService;
