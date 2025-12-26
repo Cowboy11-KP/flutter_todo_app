@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class OutlinedButtonCustom extends StatelessWidget {
   final String text;
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final double? width;
   final TextStyle? style;
   final Widget? icon;

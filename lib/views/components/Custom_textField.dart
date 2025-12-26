@@ -7,6 +7,7 @@ class CustomTextField extends StatefulWidget {
   final TextEditingController? controller;
   final FormFieldValidator<String>? validator;
   final FocusNode? focusNode;
+  final bool enabled;
 
   const CustomTextField({
     super.key,
@@ -15,7 +16,8 @@ class CustomTextField extends StatefulWidget {
     this.enabledBorder = true,
     this.controller,
     this.validator,
-    this.focusNode
+    this.focusNode,
+    this.enabled = true,
   });
 
   @override
@@ -39,9 +41,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
       children: [
         // Input field
         TextFormField(
+          enabled: widget.enabled,
           focusNode: widget.focusNode,
           validator: widget.validator,
           controller: widget.controller,
+          obscureText: widget.isPassword ? _obscureText : false,
           style: const TextStyle(color: Colors.white),
           cursorColor: const Color(0xFF8875FF),
           decoration: InputDecoration(
@@ -54,13 +58,11 @@ class _CustomTextFieldState extends State<CustomTextField> {
               ? IconButton(
                   icon: Icon(
                     _obscureText ? Icons.visibility_off : Icons.visibility,
-                    color: const Color(0xFF979797),
+                    color: widget.enabled ? const Color(0xFF979797) : Colors.white10,
                   ),
-                  onPressed: () {
-                    setState(() {
-                      _obscureText = !_obscureText;
-                    });
-                  },
+                  onPressed: widget.enabled 
+                      ? () => setState(() => _obscureText = !_obscureText)
+                      : null,
                 )
               : null,
             enabledBorder: OutlineInputBorder(
@@ -71,11 +73,15 @@ class _CustomTextFieldState extends State<CustomTextField> {
                       ? const Color(0xFF979797)
                       : Colors.transparent, 
                   width: 1),
-            ),
+            ),  
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(4),
               borderSide:
                   const BorderSide(color: Color(0xFF8875FF), width: 1.5),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(4),
+              borderSide: const BorderSide(color: Colors.white10, width: 1),
             ),
           ),
         ),
