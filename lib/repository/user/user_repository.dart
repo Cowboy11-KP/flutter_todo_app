@@ -35,16 +35,28 @@ class UserRepository {
 
   // Update password
   Future<void> changePassword(String newPassword) async {
-  try {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      await user.updatePassword(newPassword);
-      print("✅ Cập nhật mật khẩu thành công");
-    }
-  } on FirebaseAuthException catch (e) {
-    if (e.code == 'requires-recent-login') {
-      print("❌ Lỗi: Người dùng cần đăng nhập lại trước khi đổi mật khẩu (vì lý do bảo mật)");
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await user.updatePassword(newPassword);
+        print("✅ Cập nhật mật khẩu thành công");
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print("❌ Lỗi: Người dùng cần đăng nhập lại trước khi đổi mật khẩu (vì lý do bảo mật)");
+      }
     }
   }
-}
+
+  Future<void> updateAuthMethod(String uid, String newMethod) async {
+    try {
+      await _firestore.collection('users').doc(uid).update({
+        'authMethod': newMethod,
+      });
+      print("✅ Đã cập nhật phương thức đăng nhập mới: $newMethod");
+    } catch (e) {
+      print("❌ Lỗi khi cập nhật authMethod: $e");
+      rethrow;
+    }
+  }
 }

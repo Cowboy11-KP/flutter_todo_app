@@ -20,12 +20,16 @@ class UserModel {
   @HiveField(4)
   final DateTime? createdAt;
 
+  @HiveField(5) 
+  final String? authMethod; 
+
   UserModel({
     required this.uid,
     this.email,
     this.displayName,
     this.photoUrl,
     this.createdAt,
+    this.authMethod, 
   });
 
   UserModel copyWith({
@@ -34,6 +38,7 @@ class UserModel {
     String? displayName,
     String? photoUrl,
     DateTime? createdAt,
+    String? authMethod,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -41,8 +46,10 @@ class UserModel {
       displayName: displayName ?? this.displayName,
       photoUrl: photoUrl ?? this.photoUrl,
       createdAt: createdAt ?? this.createdAt,
+      authMethod: authMethod ?? this.authMethod,
     );
   }
+
   // Chuyển sang Map để lưu Firebase
   Map<String, dynamic> toMap() => {
         'uid': uid,
@@ -50,6 +57,7 @@ class UserModel {
         'displayName': displayName,
         'photoUrl': photoUrl,
         'createdAt': createdAt?.toIso8601String(),
+        'authMethod': authMethod, 
       };
 
   // Parse ngược lại từ Firebase
@@ -61,14 +69,29 @@ class UserModel {
         createdAt: map['createdAt'] != null
             ? DateTime.parse(map['createdAt'])
             : null,
+        authMethod: map['authMethod'] ?? 'password',
       );
 
-  // Tạo từ Firebase User
-  factory UserModel.fromFirebaseUser(User user) => UserModel(
-        uid: user.uid,
-        email: user.email,
-        displayName: user.displayName,
-        photoUrl: user.photoURL,
-        createdAt: DateTime.now(),
-      );
+  // Tạo từ Firebase User 
+  factory UserModel.fromFirebaseUser(User user) {
+    // Lấy danh sách provider
+    final providers = user.providerData.map((e) => e.providerId).toList();
+    
+    // Logic xác định phương thức: Ưu tiên Google nếu có trong list
+    String method = 'password';
+    if (providers.contains('google.com')) {
+      method = 'google.com';
+    } else if (providers.contains('phone')) {
+      method = 'phone';
+    }
+
+    return UserModel(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoUrl: user.photoURL,
+      createdAt: DateTime.now(),
+      authMethod: method,
+    );
+  }
 }

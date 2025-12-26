@@ -38,6 +38,19 @@ class AuthRepository {
     final credential = await _authService.loginWithGoogle();
 
     if (credential != null && credential.user != null) {
+      final userDoc = await _userRepository.getUserData(credential.user!.uid);
+  
+      if (userDoc == null) {
+        // User hoàn toàn mới
+        final newUser = UserModel.fromFirebaseUser(credential.user!).copyWith(authMethod: 'google.com');
+        await _userRepository.createUser(newUser);
+      } else {
+
+        if (userDoc.authMethod != 'google.com') {
+          await _userRepository.updateAuthMethod(credential.user!.uid, 'google.com');
+        }
+      }
+
        await Future.wait([
         _taskRepository.syncLocalDataToFirebase(credential.user!.uid),
         _taskRepository.syncTasksFromFirebase(credential.user!.uid),
@@ -51,8 +64,10 @@ class AuthRepository {
     final credential = await _authService.signUpWithEmail(userName, email, password);
 
     if (credential.user != null) {
-      // Gọi sang UserRepository để lưu database
-      final newUser = UserModel.fromFirebaseUser(credential.user!).copyWith(displayName: userName);
+      final newUser = UserModel.fromFirebaseUser(credential.user!).copyWith(
+        displayName: userName,
+        authMethod: 'password',
+      );
       await _userRepository.createUser(newUser);
       await _taskRepository.syncLocalDataToFirebase(credential.user!.uid);
     }

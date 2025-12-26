@@ -9,6 +9,7 @@ import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/components/custom_calendar.dart';
 import 'package:frontend/views/components/custom_category.dart';
+import 'package:frontend/views/components/custom_confirm_dialog.dart';
 import 'package:frontend/views/components/custom_editTitle.dart';
 import 'package:frontend/views/components/custom_task_priority_screen.dart';
 import 'package:frontend/views/components/custom_timepicker.dart';
@@ -275,77 +276,37 @@ class _EditTaskScreenState extends State<EditTaskScreen> {
                 showDialog(
                   context: context, 
                   builder: (BuildContext dialogContext) {
-                    return Dialog(
-                      insetPadding: const EdgeInsets.all(24),
-                      child: Container(
-                        width: double.infinity,
-                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF363636),
-                          borderRadius: BorderRadius.circular(4),
-                        ),
+                    return CustomConfirmDialog(
+                      title: 'Delete Task',
+                      actionText: 'Delete',
+                      actionColor: Colors.redAccent,
+                      content: Padding(
+                        padding: EdgeInsetsGeometry.symmetric(vertical: 22),
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              'Delete Task',
-                            style: Theme.of(context).textTheme.labelLarge,
+                              'Are you sure you want to delete this task?',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(context).textTheme.headlineSmall,
                             ),
-                            const SizedBox(height: 10,),
-                            // Divider
-                            const Divider(color: Colors.white24),
-                            Padding(
-                              padding: EdgeInsetsGeometry.symmetric(vertical: 22),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Text('Are You sure you want to delete this task?',
-                                    style: Theme.of(context).textTheme.headlineSmall,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  Text('Task title : ${displayTitle.toString()}',
-                                    style: Theme.of(context).textTheme.headlineSmall,
-                                  )
-                                ],
-                              )
+                            const SizedBox(height: 10),
+                            Text(
+                              'Task title : ${displayTitle}',
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white70),
                             ),
-                            // BUTTONS 
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Expanded(
-                                  flex: 1,
-                                  child: TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: Text('Cancel',
-                                      style: Theme.of(context).textTheme.bodyLarge!.copyWith
-                                      (color: Theme.of(context).colorScheme.primary),
-                                    ),
-                                  ),
-                                ), 
-                                const SizedBox(width: 15),
-                                Expanded(
-                                  flex: 1,
-                                  child: PrimaryButton(
-                                    onPressed: () async {
-                                      Navigator.pop(dialogContext);
-                                      
-                                      await context.read<TaskCubit>().deleteTask(widget.task.id);
-                                      
-                                      if (context.mounted) {
-                                        Navigator.pop(context);
-                                      }
-                                    },
-                                    text: 'Delete',
-                                  ),
-                                )
-                              ],
-                            )
                           ],
                         ),
                       ),
+                      onActionPressed: () async {
+                        // Thực hiện logic xóa
+                        await context.read<TaskCubit>().deleteTask(widget.task.id);
+                        
+                        if (context.mounted) {
+                          Navigator.pop(context);
+                        }
+                      },
                     );
                   },
                 );

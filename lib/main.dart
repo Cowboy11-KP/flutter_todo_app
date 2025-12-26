@@ -7,6 +7,7 @@ import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:frontend/viewmodels/user_cubit.dart';
 import 'package:frontend/views/auth/login_screen.dart';
 import 'package:frontend/views/home/home_screen.dart';
 import 'package:frontend/views/onboarding/onboarding_screen.dart';
@@ -55,6 +56,7 @@ Future<void> main() async {
       providers: [
         BlocProvider(create: (_) => AuthCubit(authRepository)),
         BlocProvider(create: (_) => TaskCubit(todoRepository)..loadTodos()),
+        BlocProvider(create: (_) => UserCubit(userRepository)),
       ],
       child: const MyApp(),
     ),

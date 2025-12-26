@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:frontend/viewmodels/auth_cubit.dart';
+import 'package:frontend/viewmodels/user_cubit.dart';
 import 'package:frontend/views/home/calendar/calendar_screen.dart';
 import 'package:frontend/views/home/focus_screen.dart';
 import 'package:frontend/views/home/index/index_screen.dart';
@@ -22,6 +25,12 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
+    final uid = context.read<AuthCubit>().state.uid;
+    if (uid != null) {
+      context.read<UserCubit>().getProfile(uid);
+    }
+    
     _screens = [
       IndexScreen(key: _indexKey),
       const CalendarScreen(),
