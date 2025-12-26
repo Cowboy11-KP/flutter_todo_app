@@ -19,10 +19,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isRememberMe = false;
+
   @override
   void dispose() {
     _emailController.dispose();
@@ -33,170 +33,135 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title: 'Login',),
+      appBar: const CustomAppBar(title: 'Login'),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Email",
-                  style: Theme.of(context).textTheme.bodyLarge
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _emailController,
-                  hint: "Enter your email",
-                ),
-                const SizedBox(height: 25),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: BlocConsumer<AuthCubit, AuthState>(
+              // 🔹 Chỉ listen khi trạng thái thay đổi sang Authenticated hoặc Error
+              listenWhen: (prev, curr) => prev.status != curr.status,
+              listener: (context, state) async {
+                if (state.status == AuthStatus.authenticated) {
+                  var box = Hive.box('settings');
+                  await box.put('isRememberMe', _isRememberMe);
+                  if (!mounted) return;
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (_) => const HomeScreen()),
+                  );
+                } else if (state.status == AuthStatus.error && state.message != null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(state.message!), backgroundColor: Colors.red),
+                  );
+                }
+              },
+              builder: (context, state) {
+                // Biến phụ để kiểm tra xem có bất kỳ nút nào đang xoay không
+                final bool isEmailLoading = state.status == AuthStatus.loginEmailLoading;
+                final bool isGoogleLoading = state.status == AuthStatus.loginGoogleLoading;
+                final bool isAnyLoading = isEmailLoading || isGoogleLoading;
 
-                Text(
-                   "Password",
-                  style: Theme.of(context).textTheme.bodyLarge
-                ),
-                const SizedBox(height: 8),
-                CustomTextField(
-                  controller: _passwordController,
-                  hint: "••••••••••",
-                  isPassword: true,
-                ),
-
-                const SizedBox(height: 25),
-                Row(
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: Checkbox(
-                        value: _isRememberMe,
-                        activeColor: Theme.of(context).colorScheme.primary,
-                        onChanged: (value) {
-                          setState(() {
-                            _isRememberMe = value ?? false;
-                          });
-                        },
-                      ),
+                    Text("Email", style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 8),
+                    CustomTextField(
+                      controller: _emailController,
+                      hint: "Enter your email",
+                      enabled: !isAnyLoading, // Khóa field khi đang load
                     ),
-                    const SizedBox(width: 8),
-                    Text(
-                      "Remember me",
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                    const SizedBox(height: 25),
+                    Text("Password", style: Theme.of(context).textTheme.bodyLarge),
+                    const SizedBox(height: 8),
+                    CustomTextField(
+                      controller: _passwordController,
+                      hint: "••••••••••",
+                      isPassword: true,
+                      enabled: !isAnyLoading,
                     ),
-                  ],
-                ),
+                    const SizedBox(height: 25),
+                    _buildRememberMe(),
+                    const SizedBox(height: 70),
 
-                const SizedBox(height: 70),
-                BlocConsumer<AuthCubit, AuthState>(
-                  listener: (context, state) async {
-                    if (state is Authenticated)  {
-                      var box = Hive.box('settings');
-                      await box.put('isRememberMe', _isRememberMe);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      );
-                    } else if (state is AuthError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is AuthLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return PrimaryButton(
-                      text: 'Login',
-                      onPressed: () async {
-                        await context.read<AuthCubit>().loginEmail(
-                          email: _emailController.text.trim(), 
-                          password: _passwordController.text.trim()
-                        );
-                      },
-                      width: double.infinity,
-                    );
-                  }
-                ),
-               
-                const SizedBox(height: 45),
-                Row(
-                  children: [
-                    const Expanded(
-                      child: Divider(
-                        color: Colors.grey, // màu đường kẻ
-                        thickness: 1,       // độ dày
-                        endIndent: 10,      // khoảng cách bên phải
-                      ),
-                    ),
-                    Text(
-                      "or",
-                      style: Theme.of(context).textTheme.bodyLarge
-                    ),
-                    const Expanded(
-                      child: Divider(
-                        color: Colors.grey,
-                        thickness: 1,
-                        indent: 10,         // khoảng cách bên trái
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 40,),
-                BlocConsumer<AuthCubit, AuthState>(
-                  listener: (context, state) {
-                    if (state is Authenticated) {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
-                      );
-                    } else if (state is AuthError) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(state.message)),
-                      );
-                    }
-                  },
-                  builder: (context, state) {
-                    if (state is AuthLoading) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
+                    // 🔹 Nút Login Email
+                    isEmailLoading
+                        ? const Center(child: CircularProgressIndicator())
+                        : PrimaryButton(
+                            text: 'Login',
+                            onPressed: isAnyLoading ? null : _onLoginEmail,
+                            width: double.infinity,
+                          ),
 
-                    return OutlinedButtonCustom(
-                      onPressed: () async {
-                        await context.read<AuthCubit>().loginGoogle();
-                      },
-                      icon: Padding(
-                        padding: const EdgeInsets.all(1),
-                        child: SvgPicture.asset(
-                          'assets/icons/google.svg',
-                          width: 24,
-                          height: 24,
-                        ),
-                      ),
+                    const SizedBox(height: 45),
+                    _buildDivider(context),
+                    const SizedBox(height: 40),
+
+                    // 🔹 Nút Login Google
+                    OutlinedButtonCustom(
+                      onPressed: isAnyLoading ? null : () => context.read<AuthCubit>().loginGoogle(),
+                      icon: isGoogleLoading
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                          : SvgPicture.asset('assets/icons/google.svg', width: 24, height: 24),
                       text: 'Login with google',
                       width: double.infinity,
-                    );
-                  },
-                ),
+                    ),
 
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Don’t have an account?',style: Theme.of(context).textTheme.labelSmall,),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterScreen()));
-                      },
-                      child: Text('Register', style: Theme.of(context).textTheme.labelMedium)
-                    )
+                    _buildRegisterRow(context),
                   ],
-                )
-              ],
+                );
+              },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  void _onLoginEmail() {
+    context.read<AuthCubit>().loginEmail(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
+  }
+
+  Widget _buildRememberMe() {
+    return Row(
+      children: [
+        SizedBox(
+          height: 24, width: 24,
+          child: Checkbox(
+            value: _isRememberMe,
+            onChanged: (value) => setState(() => _isRememberMe = value ?? false),
+          ),
+        ),
+        const SizedBox(width: 8),
+        const Text("Remember me", style: TextStyle(color: Colors.white70)),
+      ],
+    );
+  }
+
+  Widget _buildDivider(BuildContext context) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: Colors.grey, thickness: 1, endIndent: 10)),
+        Text("or", style: Theme.of(context).textTheme.bodyLarge),
+        const Expanded(child: Divider(color: Colors.grey, thickness: 1, indent: 10)),
+      ],
+    );
+  }
+
+  Widget _buildRegisterRow(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text('Don’t have an account?', style: Theme.of(context).textTheme.labelSmall),
+        TextButton(
+          onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const RegisterScreen())),
+          child: Text('Register', style: Theme.of(context).textTheme.labelMedium),
+        )
+      ],
     );
   }
 }

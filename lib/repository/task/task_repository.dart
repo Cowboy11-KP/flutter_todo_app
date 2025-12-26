@@ -16,7 +16,7 @@ class TaskRepository {
         .collection('users')
         .doc(uid)
         .collection('tasks')
-        .doc(task.id)
+        .doc(task.title)
         .set(task.toJson());
   }
 
