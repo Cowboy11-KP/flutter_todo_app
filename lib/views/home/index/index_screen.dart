@@ -4,7 +4,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:frontend/data/constants/default_categories.dart';
 import 'package:frontend/models/category_model.dart';
 import 'package:frontend/models/task_model.dart';
-import 'package:frontend/service/notification_service.dart';
 import 'package:frontend/theme/app_color.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
@@ -186,23 +185,6 @@ class IndexScreenState extends State<IndexScreen>
                 },
               ),
             ),
-            Center(
-        child: ElevatedButton(
-          onPressed: () async {
-            try {
-              await NotificationService.showInstantNotification(
-                title: 'Test Notification',
-                body: 'This is a test notification',
-              );
-              debugPrint('✅ Notification sent successfully');
-            } catch (e, st) {
-              debugPrint('❌ Failed to show notification: $e');
-              debugPrintStack(stackTrace: st);
-            }
-          },
-          child: const Text('Show Notification Now'),
-        ),
-      ),
           ],
         ),
       ),

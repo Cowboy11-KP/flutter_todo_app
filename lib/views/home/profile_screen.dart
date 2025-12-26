@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     isGuest ? Icons.login : Icons.logout,
                     color: isGuest ? Colors.blue : Colors.redAccent,
                     onTap: () => isGuest 
-                        ? Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false)
+                        ? Navigator.pushReplacementNamed(context, '/start')
                         : _showLogoutConfirmDialog(context),
                   ),
                   const SizedBox(height: 40),
@@ -265,7 +265,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (ctx) => CustomConfirmDialog(
         title: 'Change account name',
         actionText: 'Update',
-        content: CustomTextField(controller: _inputController, hint: 'New name'),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: CustomTextField(controller: _inputController, hint: 'New name'),
+        ),
         onActionPressed: () async {
           final newName = _inputController.text.trim();
           if (newName.isNotEmpty) {
@@ -281,17 +284,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _inputController.clear();
     showDialog(
       context: context,
-      builder: (ctx) => CustomConfirmDialog(
-        title: 'Change Password',
-        actionText: 'Change',
-        content: CustomTextField(controller: _inputController, hint: 'New password', isPassword: true),
-        onActionPressed: () async {
-          final pass = _inputController.text.trim();
-          if (pass.length >= 6) {
-            await context.read<UserCubit>().changePassword(pass);
-            if (context.mounted) Navigator.pop(ctx);
-          }
-        },
+      builder: (ctx) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 24),
+        child: CustomConfirmDialog(
+          title: 'Change Password',
+          actionText: 'Change',
+          content: CustomTextField(controller: _inputController, hint: 'New password', isPassword: true),
+          onActionPressed: () async {
+            final pass = _inputController.text.trim();
+            if (pass.length >= 6) {
+              await context.read<UserCubit>().changePassword(pass);
+              if (context.mounted) Navigator.pop(ctx);
+            }
+          },
+        ),
       ),
     );
   }
@@ -304,7 +310,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (ctx) => CustomConfirmDialog(
         title: 'Change Image URL',
         actionText: 'Update',
-        content: CustomTextField(controller: _inputController, hint: 'Paste image URL'),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: CustomTextField(controller: _inputController, hint: 'Paste image URL'),
+        ),
         onActionPressed: () async {
           final url = _inputController.text.trim();
           if (url.isNotEmpty) {
@@ -323,10 +332,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: 'Log out',
         actionText: 'Log out',
         actionColor: Colors.redAccent,
-        content: const Text(
-          'Are you sure you want to log out?',
-          textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white70, fontSize: 16),
+        content: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 24),
+          child: const Text(
+            'Are you sure you want to log out?',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.white70, fontSize: 16),
+          ),
         ),
         onActionPressed: () async {
           await context.read<AuthCubit>().logOut();
