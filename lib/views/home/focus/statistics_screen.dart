@@ -1,11 +1,11 @@
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/models/task_model.dart';
 import 'package:frontend/viewmodels/task_cubit.dart';
 import 'package:frontend/viewmodels/task_state.dart';
 import 'package:frontend/views/components/custom_app_bar.dart';
-import 'package:frontend/views/components/task_chart.dart';
+import 'package:frontend/views/home/focus/category_pie_chart.dart';
+import 'package:frontend/views/home/focus/task_chart.dart';
 
 class StatisticsScreen extends StatefulWidget {
   const StatisticsScreen({super.key});
@@ -54,7 +54,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
 
                   // 1. BIỂU ĐỒ CỘT
                   TaskChart(
-                    chartData: context.read<TaskCubit>().getTaskAnalytics(selectedFilter),
+                    key: ValueKey(selectedFilter), 
                     filterType: selectedFilter,
                   ),
 
@@ -78,7 +78,7 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
                   // 3. BIỂU ĐỒ TRÒN (CATEGORIES)
                   const Text("Categories", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 16),
-                  _buildCategoryPieChart(context),
+                  const CategoryPieChart(),
                   const SizedBox(height: 40),
                 ],
               ),
@@ -184,35 +184,5 @@ class _StatisticsScreenState extends State<StatisticsScreen> {
     );
   }
 
-  Widget _buildCategoryPieChart(BuildContext context) {
-    final categoryData = context.read<TaskCubit>().getTaskCountByCategory();
-    if (categoryData.isEmpty) {
-      return Container(
-        height: 150, width: double.infinity,
-        decoration: BoxDecoration(color: const Color(0xFF363636), borderRadius: BorderRadius.circular(12)),
-        child: const Center(child: Text("No Data Available", style: TextStyle(color: Colors.grey))),
-      );
-    }
-    return Container(
-      height: 240,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(color: const Color(0xFF363636), borderRadius: BorderRadius.circular(12)),
-      child: PieChart(
-        PieChartData(
-          sectionsSpace: 3,
-          centerSpaceRadius: 35,
-          sections: categoryData.entries.map((e) {
-            final idx = categoryData.keys.toList().indexOf(e.key);
-            return PieChartSectionData(
-              value: e.value.toDouble(),
-              title: e.key,
-              color: Colors.primaries[idx % Colors.primaries.length],
-              radius: 55,
-              titleStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.white),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+ 
 }

@@ -172,16 +172,15 @@ class TaskCubit extends Cubit<TaskState> {
   // ================= DATA ANALYTICS (CLEANED) =================
 
   /// 1. Lọc dữ liệu cho Bar Chart (Week/Month/Year)
-  Map<int, int> getTaskAnalytics(String filterType) {
+  Map<int, int> getTaskAnalyticsCustom(String filterType, DateTime pivotDate) {
     final tasks = repository.getLocalTasks();
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
+    final today = DateTime(pivotDate.year, pivotDate.month, pivotDate.day);
     Map<int, int> data = {};
 
     if (filterType == 'Week') {
       data = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0};
-      // Thứ 2 tuần này
-      DateTime startOfWeek = today.subtract(Duration(days: now.weekday - 1));
+      // Tìm thứ 2 của tuần chứa pivotDate
+      DateTime startOfWeek = today.subtract(Duration(days: pivotDate.weekday - 1));
       DateTime endOfWeek = startOfWeek.add(const Duration(days: 7));
 
       for (var t in tasks) {
@@ -190,19 +189,17 @@ class TaskCubit extends Cubit<TaskState> {
           data[t.date.weekday] = (data[t.date.weekday] ?? 0) + 1;
         }
       }
-    } 
-    else if (filterType == 'Month') {
+    } else if (filterType == 'Month') {
       for (int i = 1; i <= 31; i++) data[i] = 0;
       for (var t in tasks) {
-        if (t.date.month == now.month && t.date.year == now.year) {
+        if (t.date.month == pivotDate.month && t.date.year == pivotDate.year) {
           data[t.date.day] = (data[t.date.day] ?? 0) + 1;
         }
       }
-    } 
-    else if (filterType == 'Year') {
+    } else if (filterType == 'Year') {
       for (int i = 1; i <= 12; i++) data[i] = 0;
       for (var t in tasks) {
-        if (t.date.year == now.year) {
+        if (t.date.year == pivotDate.year) {
           data[t.date.month] = (data[t.date.month] ?? 0) + 1;
         }
       }
