@@ -4,9 +4,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/viewmodels/auth_cubit.dart';
 import 'package:frontend/viewmodels/user_cubit.dart';
 import 'package:frontend/views/home/calendar/calendar_screen.dart';
-import 'package:frontend/views/home/focus_screen.dart';
+import 'package:frontend/views/home/statistics_screen.dart';
 import 'package:frontend/views/home/index/index_screen.dart';
-import 'package:frontend/views/home/profile_screen.dart';
+import 'package:frontend/views/home/profile/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _screens = [
       IndexScreen(key: _indexKey),
       const CalendarScreen(),
-      const FocusScreen(),
+      const StatisticsScreen(),
       const ProfileScreen(),
     ];
   }
