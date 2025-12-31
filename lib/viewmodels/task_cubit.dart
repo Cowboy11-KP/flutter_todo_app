@@ -168,5 +168,57 @@ class TaskCubit extends Cubit<TaskState> {
       emit(TaskError('Xóa thất bại: $e'));
     }
   }
-  
+
+  // ================= DATA ANALYTICS (CLEANED) =================
+
+  /// 1. Lọc dữ liệu cho Bar Chart (Week/Month/Year)
+  Map<int, int> getTaskAnalytics(String filterType) {
+    final tasks = repository.getLocalTasks();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    Map<int, int> data = {};
+
+    if (filterType == 'Week') {
+      data = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0};
+      // Thứ 2 tuần này
+      DateTime startOfWeek = today.subtract(Duration(days: now.weekday - 1));
+      DateTime endOfWeek = startOfWeek.add(const Duration(days: 7));
+
+      for (var t in tasks) {
+        DateTime taskDay = DateTime(t.date.year, t.date.month, t.date.day);
+        if ((taskDay.isAtSameMomentAs(startOfWeek) || taskDay.isAfter(startOfWeek)) && taskDay.isBefore(endOfWeek)) {
+          data[t.date.weekday] = (data[t.date.weekday] ?? 0) + 1;
+        }
+      }
+    } 
+    else if (filterType == 'Month') {
+      for (int i = 1; i <= 31; i++) data[i] = 0;
+      for (var t in tasks) {
+        if (t.date.month == now.month && t.date.year == now.year) {
+          data[t.date.day] = (data[t.date.day] ?? 0) + 1;
+        }
+      }
+    } 
+    else if (filterType == 'Year') {
+      for (int i = 1; i <= 12; i++) data[i] = 0;
+      for (var t in tasks) {
+        if (t.date.year == now.year) {
+          data[t.date.month] = (data[t.date.month] ?? 0) + 1;
+        }
+      }
+    }
+    return data;
+  }
+
+  /// 2. Thống kê theo Category cho Pie Chart
+  Map<String, int> getTaskCountByCategory() {
+    Map<String, int> data = {};
+    final tasks = repository.getLocalTasks();
+    
+    for (var task in tasks) {
+      String cat = task.category ?? "Other";
+      data[cat] = (data[cat] ?? 0) + 1;
+    }
+    return data;
+  }
 }
