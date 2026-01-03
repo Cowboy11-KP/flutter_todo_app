@@ -28,7 +28,7 @@ class _TimePickerScreenState extends State<TimePickerScreen> {
   void initState() {
     super.initState();
     use24Hour = is24HourFormat(context);
-    final now = DateTime.now();
+    DateTime now = DateTime.now().add(const Duration(hours: 1));
 
     if (use24Hour) {
       selectedHour = now.hour; // 0-23

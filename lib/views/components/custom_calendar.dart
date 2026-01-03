@@ -86,23 +86,16 @@ class _CustomCalendarState extends State<CustomCalendar> {
     if (!widget.isListView || !_scrollController.hasClients) return;
 
     final now = DateTime.now();
-    final isRealCurrentMonth =
-        _currentMonth.year == now.year && _currentMonth.month == now.month;
+    final isRealCurrentMonth = _currentMonth.year == now.year && _currentMonth.month == now.month;
 
-    // Logic mới: Vì list không có padding, ta tính toán index trực tiếp
-    int targetDay; 
-    
-    if (isRealCurrentMonth) {
-      targetDay = now.day; // Nếu tháng hiện tại -> cuộn tới hôm nay
-    } else {
-      targetDay = 1; // Nếu tháng khác -> cuộn tới mùng 1
-    }
-
-    // Index bắt đầu từ 0 nên phải trừ 1
+    int targetDay = isRealCurrentMonth ? now.day : 1;
     final index = targetDay - 1; 
+    
+    const double itemWidth = 58.0; // 48 + 10
+    final double screenWidth = MediaQuery.of(context).size.width;
 
-    // Tính toán offset (50.0 là width item + margin)
-    final targetOffset = (index * 50.0) - (MediaQuery.of(context).size.width / 2) + 25;
+    // Công thức căn giữa
+    final targetOffset = (index * itemWidth) - (screenWidth / 2) + (48.0 / 2);
       
     _scrollController.animateTo(
       targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
@@ -128,12 +121,22 @@ class _CustomCalendarState extends State<CustomCalendar> {
   
   void _scrollToSelected() {
     if (!widget.isListView || !_scrollController.hasClients) return;
+
     final index = _selectedDate.day - 1;
-    final targetOffset = (index * 50.0) - (MediaQuery.of(context).size.width / 2) + 25;
+    // 48.0 là width của Container, 10.0 là margin right -> Tổng cộng 58.0
+    const double itemWidth = 48.0 + 10.0; 
+    final double screenWidth = MediaQuery.of(context).size.width;
+
+    // Tính toán để tâm của item nằm trùng với tâm của màn hình
+    // (index * itemWidth): Vị trí bắt đầu của item
+    // (screenWidth / 2): Đưa điểm đó về giữa màn hình
+    // (48.0 / 2): Bù lại nửa chiều rộng của chính item đó để nó nằm chính xác ở giữa
+    final targetOffset = (index * itemWidth) - (screenWidth / 2) + (48.0 / 2);
+
     _scrollController.animateTo(
       targetOffset.clamp(0, _scrollController.position.maxScrollExtent),
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
+      duration: const Duration(milliseconds: 350), // Tăng nhẹ thời gian cho mượt
+      curve: Curves.easeOutCubic, // Dùng curve này nhìn sẽ tự nhiên hơn
     );
   }
 

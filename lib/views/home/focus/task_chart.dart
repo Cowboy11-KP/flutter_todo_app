@@ -66,19 +66,36 @@ class _TaskChartState extends State<TaskChart> {
   Widget _buildTimeIndicator() {
     final date = _getPivotDate(_currentPage);
     String label = "";
+
     if (widget.filterType == 'Week') {
-      DateTime sun = date.add(Duration(days: 7 - date.weekday));
+      // Tìm ngày Thứ 2 và Chủ nhật của tuần đó
       DateTime mon = date.subtract(Duration(days: date.weekday - 1));
+      DateTime sun = date.add(Duration(days: 7 - date.weekday));
+      
+      // Định dạng: DD/MM - DD/MM (YYYY)
       label = "${mon.day}/${mon.month} - ${sun.day}/${sun.month} (${date.year})";
-    } else if (widget.filterType == 'Month') {
-      label = "Tháng ${date.month}, ${date.year}";
-    } else {
-      label = "Năm ${date.year}";
+    } 
+    else if (widget.filterType == 'Month') {
+      // Danh sách tên các tháng tiếng Anh
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      // label = "Tháng 1, 2024" -> "January, 2024"
+      label = "${monthNames[date.month - 1]}, ${date.year}";
+    } 
+    else {
+      // label = "Năm 2024" -> "Year 2024" hoặc chỉ hiện "2024"
+      label = "Year ${date.year}";
     }
 
     return Text(
       label,
-      style: const TextStyle(color: Color(0xFF8687E7), fontWeight: FontWeight.bold),
+      style: const TextStyle(
+        color: Color(0xFF8687E7), 
+        fontWeight: FontWeight.bold,
+        fontSize: 14,
+      ),
     );
   }
 
