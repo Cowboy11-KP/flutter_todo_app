@@ -95,7 +95,7 @@ class IndexScreenState extends State<IndexScreen>
                           d.day == now.day;
                     }).toList();
 
-                    if (todayTasks.isNotEmpty ){
+                    if (todayTasks.isNotEmpty || completedTasks.isNotEmpty ){
                       return SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
