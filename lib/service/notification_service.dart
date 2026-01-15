@@ -1,6 +1,6 @@
   import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-  import 'package:frontend/data/local/hive_service.dart';
-  import 'package:frontend/models/task_model.dart';
+  import 'package:frontend/datasources/local/hive_service.dart';
+  import 'package:frontend/mvvm/models/task/task_model.dart';
   import 'package:frontend/repository/task/task_repository.dart';
   import 'package:hive_flutter/hive_flutter.dart';
   import 'package:timezone/data/latest.dart' as tz;

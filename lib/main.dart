@@ -7,20 +7,20 @@ import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/viewmodels/user_cubit.dart';
-import 'package:frontend/views/auth/login_screen.dart';
-import 'package:frontend/views/home/home_screen.dart';
-import 'package:frontend/views/onboarding/onboarding_screen.dart';
-import 'package:frontend/views/onboarding/start_screen.dart';
-import 'package:frontend/views/splash_screen.dart';
+import 'package:frontend/mvvm/viewmodels/user_cubit.dart';
+import 'package:frontend/mvvm/views/auth/login_screen.dart';
+import 'package:frontend/mvvm/views/home/home_screen.dart';
+import 'package:frontend/mvvm/views/onboarding/onboarding_screen.dart';
+import 'package:frontend/mvvm/views/onboarding/start_screen.dart';
+import 'package:frontend/mvvm/views/splash_screen.dart';
 
 import 'package:hive_flutter/hive_flutter.dart';
-import 'package:frontend/data/local/hive_config.dart';
-import 'package:frontend/data/local/hive_service.dart';
+import 'package:frontend/datasources/local/hive_config.dart';
+import 'package:frontend/datasources/local/hive_service.dart';
 
 import 'package:frontend/repository/task/task_repository.dart';
-import 'package:frontend/viewmodels/auth_cubit.dart';
-import 'package:frontend/viewmodels/task_cubit.dart';
+import 'package:frontend/mvvm/viewmodels/auth/auth_cubit.dart';
+import 'package:frontend/mvvm/viewmodels/task/task_cubit.dart';
 import 'package:frontend/theme/app_theme.dart';
 
 Future<void> main() async {

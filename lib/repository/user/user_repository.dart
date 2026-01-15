@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:frontend/models/user_model.dart';
+import 'package:frontend/mvvm/models/user/user_model.dart';
 
 class UserRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

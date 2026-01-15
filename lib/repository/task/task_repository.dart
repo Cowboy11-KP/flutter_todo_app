@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:frontend/data/local/hive_service.dart'; 
-import 'package:frontend/models/task_model.dart';
+import 'package:frontend/datasources/local/hive_service.dart'; 
+import 'package:frontend/mvvm/models/task/task_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class TaskRepository {

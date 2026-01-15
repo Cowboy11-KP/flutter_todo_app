@@ -1,6 +1,6 @@
-import 'package:frontend/data/constants/default_categories.dart';
-import 'package:frontend/data/local/hive_service.dart';
-import 'package:frontend/models/category_model.dart';
+import 'package:frontend/datasources/constants/default_categories.dart';
+import 'package:frontend/datasources/local/hive_service.dart';
+import 'package:frontend/mvvm/models/category/category_model.dart';
 
 class CategoryRepository {
   final LocalCategoryService local;
