@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:frontend/mvvm/viewmodels/auth/auth_cubit.dart';
 import 'package:frontend/mvvm/viewmodels/task/task_cubit.dart';
 import 'package:frontend/mvvm/viewmodels/task/task_state.dart';
-import 'package:frontend/mvvm/viewmodels/user_cubit.dart';
-import 'package:frontend/mvvm/viewmodels/user_state.dart';
+import 'package:frontend/mvvm/viewmodels/user/user_cubit.dart';
+import 'package:frontend/mvvm/viewmodels/user/user_state.dart';
 import 'package:frontend/mvvm/views/components/Custom_textField.dart';
 import 'package:frontend/mvvm/views/components/custom_confirm_dialog.dart';
 

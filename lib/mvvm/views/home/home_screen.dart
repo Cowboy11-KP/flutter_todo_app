@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:frontend/mvvm/viewmodels/auth/auth_cubit.dart';
-import 'package:frontend/mvvm/viewmodels/user_cubit.dart';
+import 'package:frontend/mvvm/viewmodels/user/user_cubit.dart';
 import 'package:frontend/mvvm/views/home/calendar/calendar_screen.dart';
 import 'package:frontend/mvvm/views/home/focus/statistics_screen.dart';
 import 'package:frontend/mvvm/views/home/index/index_screen.dart';

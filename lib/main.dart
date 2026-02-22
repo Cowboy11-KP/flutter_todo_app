@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/firebase_options.dart';
-import 'package:frontend/repository/auth_repository.dart';
+import 'package:frontend/repository/auth/auth_repository.dart';
+
 import 'package:frontend/repository/user/user_repository.dart';
 import 'package:frontend/service/firebase_auth_service.dart';
 import 'package:frontend/service/notification_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:frontend/mvvm/viewmodels/user_cubit.dart';
+import 'package:frontend/mvvm/viewmodels/user/user_cubit.dart';
 import 'package:frontend/mvvm/views/auth/login_screen.dart';
 import 'package:frontend/mvvm/views/home/home_screen.dart';
 import 'package:frontend/mvvm/views/onboarding/onboarding_screen.dart';
