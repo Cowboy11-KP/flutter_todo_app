@@ -1,16 +1,43 @@
-# frontend
+# 📋 ToDoApp – Flutter MVVM
 
-A new Flutter project.
+A ToDo application developed using **Flutter**, following the **MVVM architecture** and integrated with **Firebase** for authentication and real-time data storage.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🎯 Main Features
 
-A few resources to get you started if this is your first Flutter project:
+- User authentication (Firebase Auth)
+- Create, update, delete tasks
+- Task categorization
+- Calendar task management
+- Real-time synchronization with Cloud Firestore
+- State management using Cubit (Bloc)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🏗️ Architecture
+
+This project applies the **MVVM (Model – View – ViewModel)** pattern:
+
+- **Model**: Data models and entities  
+- **View**: Flutter UI screens and widgets  
+- **ViewModel**: Cubit for business logic and state management  
+
+A repository layer is used to separate data handling from UI logic.
+
+---
+
+## 🧰 Technologies Used
+
+- Flutter & Dart  
+- Firebase Authentication  
+- Cloud Firestore  
+- Flutter Bloc (Cubit)
+
+---
+
+## 🚀 How to Run
+
+```bash
+flutter pub get
+flutter run
