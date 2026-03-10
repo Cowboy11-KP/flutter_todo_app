@@ -27,3 +27,5 @@ google-services.json
 firebase_options.dart
 test/
 .metadata
+TODO.md
+.gitignore
