@@ -76,7 +76,7 @@ class AuthRepository {
   }
 
   Future<void> logOut() async {
-    // await _local.clearAllTasks();
+    await _local.clearAllTasks();
     await _authService.logout();
   }
 }
