@@ -343,7 +343,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         onActionPressed: () async {
           await context.read<AuthCubit>().logOut();
           if (context.mounted) {
-            Navigator.pushReplacementNamed(context, '/start');
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              '/start',
+              (route) => false,
+            );
           }
         },
       ),
